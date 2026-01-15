@@ -27,18 +27,6 @@ This is the simplest and yet the most useful car shop site ever. Interface is ex
 
 [ninjamock](https://ninjamock.com/s/72C9QZx)
 
-The website will have a home page, service page, appointment page, info page, and review page.
-
-Home page: Promotion and provide easy access to service page and appointment page. Prompt user to create an account or sign in.
-
-Service page: Educational information and videos of available services. You can jump to appointment page by choosing a service.
-
-Appointment page: You can make an appointment for desired services. 
-
-Info page: Basic information about the shop/company and contact info.
-
-Review page: Form for reviews and claims. Has a space to enter a promotional code to get coupons.
-
 ```mermaid
 sequenceDiagram
     actor You
@@ -47,6 +35,14 @@ sequenceDiagram
 ```
 
 ### Key features
+
+The website will have a home page, service page, appointment page, info page, and review page.
+
+- Home page: Promotion and provide easy access to service page and appointment page. Prompt user to create an account or sign in.
+- Service page: Educational information and videos of available services. You can jump to appointment page by choosing a service.
+- Appointment page: You can make an appointment for desired services. 
+- Info page: Basic information about the shop/company and contact info.
+- Review page: Form for reviews and claims. Has a space to enter a promotional code to get coupons.
 
 - Describe your key feature
 - Describe your key feature
