@@ -1,5 +1,4 @@
 # Tuning Shop Appointment Site/App
-Cool app
 
 [My Notes](notes.md)
 
@@ -12,15 +11,15 @@ A simple appointment making site(app) for a car tuning shop. Users can create an
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] Proper use of Markdown
-- [ ] A concise and compelling elevator pitch
+- [x] Proper use of Markdown
+- [x] A concise and compelling elevator pitch
 - [ ] Description of key features
 - [ ] Description of how you will use each technology
 - [ ] One or more rough sketches of your application. Images must be embedded in this file using Markdown image references.
 
 ### Elevator pitch
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+This is the simplest and yet the most useful car shop site ever. Interface is extremely intuitive and minimum, but the site has every necessary tools to learn about available services, make appoointment for servicing vehicles, thier 2nd greatest assets only to a house. 
 
 ### Design
 
