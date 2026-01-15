@@ -37,27 +37,33 @@ sequenceDiagram
 ### Key features
 
 The website will have a home page, service page, appointment page, info page, and review page.
+- Home page - Promotion and provide easy access to service page and appointment page. Prompt user to create an account or sign in.
+- Account manager page - Customize garage, personal information.
+- Service page - Educational information and videos of available services. You can jump to appointment page by choosing a service.
+- Appointment page - You can make an appointment for desired services. 
+- Info page - Basic information about the shop/company and contact info.
+- Review page - Form for reviews and claims. Has a space to enter a promotional code to get coupons.
 
-- Home page: Promotion and provide easy access to service page and appointment page. Prompt user to create an account or sign in.
-- Service page: Educational information and videos of available services. You can jump to appointment page by choosing a service.
-- Appointment page: You can make an appointment for desired services. 
-- Info page: Basic information about the shop/company and contact info.
-- Review page: Form for reviews and claims. Has a space to enter a promotional code to get coupons.
-
-- Describe your key feature
-- Describe your key feature
-- Describe your key feature
+Special features
+- User can add cars by lisence plate number or manual input.
+- Appointment scheduler displayed in realtime.
 
 ### Technologies
 
 I am going to use the required technologies in the following ways.
 
-- **HTML** - Description here
-- **CSS** - Description here
-- **React** - Description here
-- **Service** - Description here
-- **DB/Login** - Description here
-- **WebSocket** - Description here
+- **HTML** - Uses correct HTML structure for application. Six HTML pages, for home, account manager, service, appointment, info, and review page. Hyperlinks to choice artifact.
+- **CSS** - Intuitive UI design and application styling that looks good on different screen sizes, uses good whitespace, color choice and contrast.
+- **React** -  Provides login, updating appointment scheduler, updating user's garage, and use of React for routing and components.
+- **Service** - Backend service with endpoints for:
+  - login
+  - retrieving appointment scheduler
+  - updating appointment scheduler
+  - retrieving garage
+  - updating garage
+  - Send to the user and to the shop for each appointment. 
+- **DB/Login** - Store users, garage, and appointment schedule in database. Register and login users. Credentials securely stored in database. Can't make appointments without being authented.
+- **WebSocket** - User receives confirmation for their appointment.
 
 ## 🚀 AWS deliverable
 
