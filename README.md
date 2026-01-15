@@ -29,9 +29,14 @@ This is the simplest and yet the most useful car shop site ever. Interface is ex
 
 ```mermaid
 sequenceDiagram
-    actor You
+    actor Bob
+    actor Shop
     actor Website
-    You->>Website: Replace this with your design
+    Bob->>Server: New appointment
+    Server-->>Bob: Appointment created
+    Server-->>Shop: Appointment created
+    Bob->>Server: New vehicle
+    Server-->>Website: New vehicle added
 ```
 
 ### Key features
@@ -47,6 +52,7 @@ The website will have a home page, service page, appointment page, info page, an
 Special features
 - User can add cars by lisence plate number or manual input.
 - Appointment scheduler displayed in realtime.
+- Sends email to user and to the shop on the creation of an appointment.
 
 ### Technologies
 
