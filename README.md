@@ -1,4 +1,5 @@
 # Your startup name here
+Cool app
 
 [My Notes](notes.md)
 
