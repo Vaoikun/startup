@@ -78,7 +78,8 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 - [x] **Server deployed and accessible with custom domain name** - [My server link](https://yourdomainnamehere.click).
 
 ## 🚀 HTML deliverable
-[CodePen](https://github.com/Vaoikun/startup) for basic structure
+[CodePen](https://github.com/Vaoikun/startup) for basic HTML document structure
+[CodePen](https://codepen.io/Vaoikun/pen/XJKVmxO) for basic HTML input format
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
