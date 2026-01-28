@@ -10,28 +10,44 @@
     <body>
         <header>
             <h1>Kai Tuning<sup>&reg;</sup></h1>
-        <h2>Resources</h2>
-        <nav>
-            <menu>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="schedule.html">Appointment</a></li>
-                <li><a href="account.html">Account</a></li>
-                <li><a href="about.html">Info</a></li>
-            </menu>
-        </nav>
-        <hr />
+            <h2>Resources</h2>
+            <nav>
+                <menu>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="schedule.html">Appointment</a></li>
+                    <li><a href="account.html">Account</a></li>
+                    <li><a href="about.html">Info</a></li>
+                </menu>
+            </nav>
+            <hr />
         </header>
 
         <main>
-        <h1>User Account</h1>
-        <p>Manage your account details and view your appointment history.</p>
+            <h1>User Account</h1>
+            <p>Welcome to your garage.</p>
+
+            <section class="grid">
+                <!-- Account info gets updated realtime-->
+                 <div class="card" aria-labelledby="acctInfoTitle">
+                    <h2 id="acctInfoTitle">Account Info</h2>
+                    <div class="kv" id="acctInfo">
+                        <div class="row">
+                            <span class="key">Email:</span>
+                            <span class="value" id="acctEmail">
+                    </div>
+
+                    <div class=""actions">
+                        <button type="button" id="editAcctBtn">Edit</button>
+                        <button type="button" id="delAcctBtn">Delete</button>
+                 </div>
+            </section>
         </main>
 
         <footer>
-        <hr />
-        <span class="text-reset">Author: Vance Williams</span>
-        <br />
-        <a href="https://github.com/Vaoikun/startup">GitHub</a>
+            <hr />
+            <span class="text-reset">Author: Vance Williams</span>
+            <br />
+            <a href="https://github.com/Vaoikun/startup">GitHub</a>
         </footer>
     </body>
 </html>
