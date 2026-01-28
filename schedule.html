@@ -6,3 +6,48 @@
         <title>Appointment with Kai Tuning</title>
         <link rel="icon" href="favicon.ico" />
     </head>
+
+    <body>
+        <header>
+            <h1>Kai Tuning<sup>&reg;</sup></h1>
+        <h2>Resources</h2>
+        <nav>
+            <menu>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="schedule.html">Appointment</a></li>
+                <li><a href="account.html">Account</a></li>
+                <li><a href="about.html">Info</a></li>
+            </menu>
+        </nav>
+        <hr />
+        </header>
+
+        <main>
+        <h1>Schedule an Appointment</h1>
+        <form method="post" action="/submit_appointment">
+            <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required />
+            </div>
+            <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+            </div>
+            <div>
+            <label for="date">Date:</label>
+            <input type="date" id="date" name="date" required />
+            </div>
+            <div>
+            <label for="time">Time:</label>
+            <input type="time" id="time" name="time" required />
+            </div>
+            <button type="submit">Schedule Appointment</button>
+        </form>
+        </main>
+
+        <footer>
+        <hr />
+        <span class="text-reset">Author: Vance Williams</span>
+        <br />
+        <a href="https://github.com/Vaoikun/startup">GitHub</a>
+    </body>
