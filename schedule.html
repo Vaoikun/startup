@@ -23,26 +23,45 @@
         </header>
 
         <main>
-        <h1>Schedule an Appointment</h1>
-        <form method="post" action="/submit_appointment">
-            <div>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required />
+        <p class="note">Pick a date, choose a time slot, then submit.</p>
+
+        <form id="apptForm">
+            <div class="row">
+            <label for="apptDate"><strong>Date:</strong></label><br />
+            <input id="apptDate" name="date" type="date" required />
             </div>
-            <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required />
+            <!-- Will get updated realtime -->
+            <div class="row">
+            <strong>Time slot:</strong>
+            <div class="slots" id="slots">
+                <button class="slot" type="button" data-time="09:00">9:00 AM</button>
+                <button class="slot" type="button" data-time="10:00">10:00 AM</button>
+                <button class="slot" type="button" data-time="11:00">11:00 AM</button>
+                <button class="slot" type="button" data-time="13:00">1:00 PM</button>
+                <button class="slot" type="button" data-time="14:00">2:00 PM</button>
+                <button class="slot" type="button" data-time="15:00">3:00 PM</button>
             </div>
-            <div>
-                <label for="date">Date:</label>
-                <input type="date" id="date" name="date" required />
+
+            <!-- this is what actually gets "submitted" -->
+            <input type="hidden" id="apptTime" name="time" required />
             </div>
-            <div>
-                <label for="time">Time:</label>
-                <input type="time" id="time" name="time" required />
+
+            <div class="row">
+            <label for="service"><strong>Service:</strong></label><br />
+            <select id="service" name="service" required>
+                <option value="">Choose one…</option>
+                <option value="consult">Consultation</option>
+                <option value="tune">Performance Tune</option>
+                <option value="diagnostic">Diagnostic</option>
+            </select>
             </div>
-            <button type="submit">Schedule Appointment</button>
+
+            <div class="actions">
+            <button type="submit">Make appointment</button>
+            <button type="reset">Clear</button>
+            </div>
         </form>
+        <p id="result" role="status" aria-live="polite"></p>
         </main>
 
         <footer>
