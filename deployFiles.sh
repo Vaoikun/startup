@@ -11,7 +11,7 @@ done
 
 if [[ -z "$key" || -z "$hostname" || -z "$service" ]]; then
     printf "\nMissing required parameter.\n"
-    printf "  syntax: deployFiles.sh -k /Volumes/RayCue/Home/School/CS_260/production.pem -h kaidesign.click -s kaidesign\n\n"
+    printf "  syntax: deployFiles.sh -k /Volumes/RayCue/Home/School/CS_260/production.pem -h kaidesign.click -s kaituning\n\n"
     exit 1
 fi
 
