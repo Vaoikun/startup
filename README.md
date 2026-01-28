@@ -84,13 +84,13 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [x] **HTML pages** - Completed.
-- [x] **Proper HTML element usage** - Completed.
-- [x] **Links** - Completed.
-- [x] **Text** - Completed.
+- [x] **HTML pages** - Four different pages. 'index.html', 'schedule.html', 'account.html', 'about.html'.
+- [x] **Proper HTML element usage** - I used header, footer, main, nav, input, button, form, and other HTML elements. 
+- [x] **Links** - Links between pages.
+- [x] **Text** - Each page has necessary text. 
 - [ ] **3rd party API placeholder** - I did not complete this part of the deliverable.
-- [x] **Images** - Completed.
-- [x] **Login placeholder** - Completed.
+- [x] **Images** - Replaced favicon with original logo.
+- [x] **Login placeholder** - Placeholder for auth on the home page. 
 - [ ] **DB data placeholder** - I did not complete this part of the deliverable.
 - [x] **WebSocket placeholder** - Completed.
 
