@@ -88,11 +88,11 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 - [x] **Proper HTML element usage** - I used header, footer, main, nav, input, button, form, and other HTML elements. 
 - [x] **Links** - Links between pages.
 - [x] **Text** - Each page has necessary text. 
-- [ ] **3rd party API placeholder** - I did not complete this part of the deliverable.
+- [x] **3rd party API placeholder** - Info page has a place to display map for shop location. 
 - [x] **Images** - Replaced favicon with original logo.
 - [x] **Login placeholder** - Placeholder for auth on the home page. 
-- [ ] **DB data placeholder** - I did not complete this part of the deliverable.
-- [x] **WebSocket placeholder** - Completed.
+- [x] **DB data placeholder** - Available time displayed on schedule page. List of cars, appointment, and more are displayed on account page.
+- [x] **WebSocket placeholder** - Appointments in account page will get updated realtime.
 
 ## 🚀 CSS deliverable
 
