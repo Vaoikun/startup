@@ -80,6 +80,7 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 ## 🚀 HTML deliverable
 [CodePen](https://github.com/Vaoikun/startup) for basic HTML document structure
 [CodePen](https://codepen.io/Vaoikun/pen/XJKVmxO) for basic HTML input format
+[CodePen](https://codepen.io/Vaoikun/pen/qENpOzE) for basic HTML media format
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
