@@ -1,3 +1,78 @@
+:root{
+    --primary-color: #0077ff;
+    --secondary-color: #6b7280;
+    --background-color: #0b0f16;
+    --text-color: #e5e7eb;
+    --panel: #0f172a;
+    --border: rgba(255,255,255,0.10);
+    --muted: #a1a1aa;
+    --brand: #0077ff;
+}
+
 h2 {
-    color: rgb(0, 0, 0);
+    color: var(--text-color);
+}
+
+main {
+    display: grid;
+    place-items: center;
+}
+
+form {
+    width: 100%;
+    max-width: 600px;
+    padding: 24px 26 px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background-color: rgba(149, 121, 121, 0.25);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.45);
+    transform: scale(1.05);
+}
+
+/* Space out the inputs */
+form > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(149, 121, 121, 0.25);
+  margin-bottom: 14px;
+}
+
+form input {
+    width: 100%;
+    padding: 8px 6px;
+    border: none;
+    font-size: 1.05rem;
+    background: transparent;
+    color: black;
+    outline: none;
+}
+
+form input::placeholder {
+    color: black;
+}
+
+form button {
+    width: 25%;
+    margin-top: 10px;
+    padding: 10px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(4, 148, 52, 0.8);
+    color: var(--text-color);
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 120ms ease, border-color 120ms ease;
+}
+
+form button:hover {
+    transform: translateY(-1px);
+    border-color: var(--brand);
+}
+
+form button + button {
+    margin-left: 4%;
 }
