@@ -1,0 +1,33 @@
+header {
+    
+}
+
+h1 {
+    color: rgba(255, 255, 255, 0.9);
+    background-color: rgb(62, 4, 133);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+h2 {
+    color: rgb(0, 0, 0);
+}
+
+nav.tabs a {
+    display: flex;
+    padding: 10px 15px;
+    background-color: rgb(200, 200, 200);
+    color: rgb(0, 0, 0);
+    gap: 15px;
+    margin-bottom: 10px;
+    border-bottom: 3px solid transparent
+}
+
+.tabs a:hover {
+  color: #0077ff;
+}
+
+.tabs a.active {
+  border-bottom: 3px solid #0077ff;
+  font-weight: bold;
+}
