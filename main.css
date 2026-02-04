@@ -7,17 +7,17 @@
 :root{
     --primary-color: #0077ff;
     --secondary-color: #6b7280;
-    --background-color: #000000;
-    --text-color: #ffffff;
-    --panel: #1f2937;
-    --border: #374151;
-    --muted: #9ca3af;
-    --brand: #3b82f6;
+    --background-color: #0b0f16;
+    --text-color: #e5e7eb;
+    --panel: #0f172a;
+    --border: rgba(255,255,255,0.10);
+    --muted: #a1a1aa;
+    --brand: #0077ff;
 }
 
 body {
     font-family: Arial, sans-serif;
-    background-color: radial-gradient(1200px 600px at 20% 0%, rgba(0,119,255,0.18), transparent 60%),
+    background: radial-gradient(1200px 600px at 20% 0%, rgba(0,119,255,0.18), transparent 60%),
               radial-gradient(900px 500px at 80% 10%, rgba(125,0,255,0.12), transparent 55%),
               var(--background-color);
     color: var(--text-color);
@@ -25,44 +25,90 @@ body {
     padding: 20px;
 }
 
+header {
+    padding: 18px 16px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
 h1 {
-    color: rgba(255, 255, 255, 0.9);
+    color: #ffffff !important;
+    margin: 0;
     background-image: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url("rally-banner.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    padding: 20px;
+    padding: 22px 20px;
     border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
+    letter-spacing: 0.5px;
 }
 
-h2 {
-    color: rgb(0, 0, 0);
+h1 sup {
+    font-size: 0.5em;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .tabbar {
     display: flex;
     align-items: center;
-    gap: 24px;
-    border-bottom: 1px solid #e5e7eb;
-    padding: 10px 6px 0;
+    gap: 22px;
+    border-bottom: 1px solid var(--border);
+    padding: 14px 6px 0;
+    margin-top: 10px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabbar a {
+    color: inherit;
 }
 
 .tab {
     display: inline-flex; 
     align-items: center;
-    gap: 8px;
-    padding: 10px 4px 12px;
+    gap: 10px;
+    padding: 10px 6px 14px;
     text-decoration: none;
-    color: #6b7280;
+    color: var(--muted);
     border-bottom: 3px solid transparent;
-    font-weight: 500;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: color 0.3s ease, border-bottom 0.3s ease, transform 0.2s ease;
     }
 
 .tab.active {
-    border-bottom: 3px solid #0077ff;
-    font-weight: bold;
+    border-bottom: 3px solid var(--brand);
+    border-bottom-color: var(--brand)
 }
 
 .tab:hover {
-    color: #0077ff;
+    color: var(--text-color);
+    transform: translateY(-1px);
+}
+
+.icon {
+    display: inline-flex;
+    line-height: 1;
+    font-size: 1.05em;
+    transform: translateY(-1px);
+}
+
+html, body {
+    height: 100%;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+footer {
+    margin-top: auto;
 }
