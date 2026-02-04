@@ -1,0 +1,58 @@
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 22px 16px 0;
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+}
+
+.note {
+    color: rgba(229,231,235,0.85);
+    margin: 6px 0 10px;
+    max-width: 70ch;
+}
+
+#apptForm {
+    width: 100%;
+    max-width: 560px;
+    padding: 22px 22px;
+    border-radius: 14px;
+
+    background: rgba(15, 23, 42, 0.60);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--border);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+}
+
+#apptForm .row {
+    margin-bottom: 14px;
+}
+
+#apptForm label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+#apptForm strong {
+    color: var(--text-color);
+}
+
+#apptForm input[type="date"],
+#apptForm select {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.22);
+    color: var(--text-color);
+    outline: none;
+}
+
+#apptForm input[type="date"]:focus,
+#apptForm select:focus {
+    border-color: rgba(0,119,255,0.65);
+}
