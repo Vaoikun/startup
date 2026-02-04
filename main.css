@@ -13,53 +13,30 @@ h2 {
     color: rgb(0, 0, 0);
 }
 
-.tabbar a {
+.tabbar {
     display: flex;
-    padding: 10px 15px;
-    background-color: rgb(200, 200, 200);
-    color: rgb(0, 0, 0);
-    gap: 15px;
-    margin-bottom: 10px;
-    border-bottom: 3px solid transparent;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
+    align-items: center;
+    gap: 24px;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 10px 6px 0;
 }
 
 .tab {
-    position: relative;
-    display: inline-flex;
+    display: inline-flex; 
     align-items: center;
-    gap: 10px;
-    padding: 10px 15px;
-    background-color: rgb(200, 200, 200);
-    color: rgb(0, 0, 0);
-    margin-right: 10px;
+    gap: 8px;
+    padding: 10px 4px 12px;
+    text-decoration: none;
+    color: #6b7280;
     border-bottom: 3px solid transparent;
-    transition: color 0.3s, border-bottom 0.3s;
-    white-space: nowrap;
-}
+    font-weight: 500;
+    }
 
 .tab.active {
-  border-bottom: 3px solid #0077ff;
-  font-weight: bold;
+    border-bottom: 3px solid #0077ff;
+    font-weight: bold;
 }
 
 .tab:hover {
-  color: #0077ff;
-}
-
-.tab__icon {
-  width: 18px;
-  height: 18px;
-  fill: currentColor;
-  opacity: 0.9;
-}
-
-.tab[aria-current="page"] {
-  border-bottom: 3px solid #0077ff;
-  font-weight: bold;
-}
-
-.tabbar::-webkit-scrollbar {
-    height: 8px
+    color: #0077ff;
 }
