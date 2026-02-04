@@ -8,7 +8,7 @@ main {
 }
 
 .note {
-    color: rgba(229,231,235,0.85);
+    color: var(--text-color);
     margin: 6px 0 10px;
     max-width: 70ch;
 }
@@ -19,7 +19,7 @@ main {
     padding: 22px 22px;
     border-radius: 14px;
 
-    background: rgba(15, 23, 42, 0.60);
+    background: rgba(149, 121, 121, 0.25);
     backdrop-filter: blur(6px);
     border: 1px solid var(--border);
     box-shadow: 0 12px 28px rgba(0,0,0,0.45);
@@ -55,4 +55,46 @@ main {
 #apptForm input[type="date"]:focus,
 #apptForm select:focus {
     border-color: rgba(0,119,255,0.65);
+}
+
+.slots {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.slot {
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.22);
+    color: rgba(229,231,235,0.92);
+
+    padding: 10px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+
+    transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.slot:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0,119,255,0.55);
+}
+
+.slot.selected {
+    border-color: rgba(0,119,255,0.95);
+    background: rgba(0,119,255,0.15);
+}
+
+.slot[aria-pressed="true"] {
+    border-color: rgba(0,119,255,0.95);
+    background: rgba(0,119,255,0.15);
+}
+
+/* Responsive tweak for small screens */
+@media (max-width: 520px) {
+  .slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
