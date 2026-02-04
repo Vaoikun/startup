@@ -8,11 +8,12 @@
     --primary-color: #0077ff;
     --secondary-color: #6b7280;
     --background-color: #0b0f16;
-    --text-color: #e5e7eb;
+    --text-color: #0e1428;
     --panel: #0f172a;
     --border: rgba(255,255,255,0.10);
     --muted: #a1a1aa;
     --brand: #0077ff;
+    --brand--hover: #005fcc;
 }
 
 body {

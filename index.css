@@ -61,7 +61,7 @@ form button {
     padding: 10px 0;
     border-radius: 10px;
     border: 1px solid var(--border);
-    background: rgba(4, 148, 52, 0.8);
+    background: var(--brand);
     color: var(--text-color);
     font-weight: 700;
     cursor: pointer;
@@ -70,7 +70,7 @@ form button {
 
 form button:hover {
     transform: translateY(-1px);
-    border-color: var(--brand);
+    border-color: var(--brand--hover);
 }
 
 form button + button {
