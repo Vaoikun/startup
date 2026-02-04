@@ -92,6 +92,42 @@ main {
     background: rgba(0,119,255,0.15);
 }
 
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.actions button {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.22);
+    color: var(--text-color);
+    font-weight: 800;
+    cursor: pointer;
+
+    transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.actions button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0,119,255,0.6);
+}
+
+.actions button[type="reset"] {
+    color: rgba(229,231,235,0.8);
+}
+
+#result {
+    max-width: 560px;
+    width: 100%;
+    color: rgba(229,231,235,0.85);
+    margin-top: 8px;
+}
+
 /* Responsive tweak for small screens */
 @media (max-width: 520px) {
   .slots {
