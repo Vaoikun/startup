@@ -1,0 +1,10 @@
+header {
+
+}
+
+h1 {
+    color: rgb(255, 255, 255);
+    background-color: rgb(62, 4, 133);
+    padding: 20px;
+    border-radius: 5px;
+}
