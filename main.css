@@ -1,5 +1,5 @@
 header {
-    
+
 }
 
 h1 {
@@ -13,21 +13,53 @@ h2 {
     color: rgb(0, 0, 0);
 }
 
-nav.tabs a {
+.tabbar a {
     display: flex;
     padding: 10px 15px;
     background-color: rgb(200, 200, 200);
     color: rgb(0, 0, 0);
     gap: 15px;
     margin-bottom: 10px;
-    border-bottom: 3px solid transparent
+    border-bottom: 3px solid transparent;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
-.tabs a:hover {
+.tab {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background-color: rgb(200, 200, 200);
+    color: rgb(0, 0, 0);
+    margin-right: 10px;
+    border-bottom: 3px solid transparent;
+    transition: color 0.3s, border-bottom 0.3s;
+    white-space: nowrap;
+}
+
+.tab.active {
+  border-bottom: 3px solid #0077ff;
+  font-weight: bold;
+}
+
+.tab:hover {
   color: #0077ff;
 }
 
-.tabs a.active {
+.tab__icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  opacity: 0.9;
+}
+
+.tab[aria-current="page"] {
   border-bottom: 3px solid #0077ff;
   font-weight: bold;
+}
+
+.tabbar::-webkit-scrollbar {
+    height: 8px
 }
