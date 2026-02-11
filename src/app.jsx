@@ -20,19 +20,19 @@ export default function App() {
                     </span>
                     Home
                 </NavLink>
-                <NavLink className="tab" to="account">
+                <NavLink className="tab" to="/account">
                     <span className="icon">
                         👤
                     </span>
                     Account
                 </NavLink>
-                <NavLink className="tab" to="schedule">
+                <NavLink className="tab" to="/schedule">
                     <span className="icon">
                         📅
                     </span>
                     Schedule
                 </NavLink>
-                <NavLink className="tab" to="about">
+                <NavLink className="tab" to="/about">
                     <span className="icon">
                         ℹ️
                     </span>
@@ -42,10 +42,11 @@ export default function App() {
             <hr />
         </header>
 
-        <main className="nfs-tagline">Need For Speed...</main>
-
         <Routes>
-            <Route path='/' element={<Login />} />
+            <Route path='/' element={<>
+            <main className="nfs-tagline">Need For Speed...</main>
+            <Login />
+            </>} />
             <Route path='/account' element={<Account />} />
             <Route path='/schedule' element={<Schedule />} />
             <Route path='/about' element={<About />} />
