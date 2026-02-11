@@ -40,15 +40,15 @@ export function Account() {
                         </thead>
                         <tbody id="carsTbody"></tbody>
                     </table>
-                    <h3 style="margin-top: 1rem;">Add a car</h3>
+                    <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
                     <form id="addCarForm">
                         <div className="actions">
                         <input name="nickname" placeholder="Nickname (e.g., Daily)" required />
-                        <input name="year" placeholder="Year" inputmode="numeric" required />
+                        <input name="year" placeholder="Year" inputMode="numeric" required />
                         <input name="make" placeholder="Make" required />
                         <input name="model" placeholder="Model" required />
                         <input name="trim" placeholder="Trim (optional)" />
-                        <input name="vinLast4" placeholder="VIN last 4" maxlength="4" />
+                        <input name="vinLast4" placeholder="VIN last 4" maxLength={4} />
                         <button type="submit">Add</button>
                         </div>
                     </form>

@@ -14,7 +14,7 @@ export default function App() {
     <header>
             <h1>Kai Tuning<sup>&reg;</sup></h1>
             <nav className="tabbar">
-                <NavLink className="tab active" to="">
+                <NavLink className="tab active" to="/">
                     <span className="icon">
                         🏠
                     </span>

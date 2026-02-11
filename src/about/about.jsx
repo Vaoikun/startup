@@ -30,12 +30,12 @@ export function About() {
             <h2 id="mapTitle">Map</h2>
             <iframe
                 loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
+                referrerPolicy="no-referrer-when-downgrade"
                 src="https://www.google.com/maps/embed?pb=!3m1!4b1!4m6!3m5!1s0x874d90bc4aa0b68d:0xbf3eb3a3f30fdc4c!8m2!3d40.2518435!4d-111.6493156!16zL20vMGwydGs?entry=ttu&g_ep=EgoyMDI2MDEyNi4wIKXMDSoKLDEwMDc5MjA2N0gBUAM%3D"
                 title="Kai Tuning Map"
             ></iframe>
 
-            <p className="muted" style="margin-top: 0.75rem;">
+            <p className="muted" style={{ marginTop: '0.75rem' }}>
                 <a
                 href="https://www.google.com/maps/place/ブリガムヤング大学/@40.2518435,-111.6518905,17z/data=!3m1!4b1!4m6!3m5!1s0x874d90bc4aa0b68d:0xbf3eb3a3f30fdc4c!8m2!3d40.2518435!4d-111.6493156!16zL20vMGwydGs?entry=ttu&g_ep=EgoyMDI2MDEyNi4wIKXMDSoKLDEwMDc5MjA2N0gBUAM%3D"
                 target="_blank"
