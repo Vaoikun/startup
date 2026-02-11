@@ -21,7 +21,6 @@ export function Schedule() {
                 <button className="slot" type="button" data-time="15:00">3:00 PM</button>
             </div>
 
-            <!-- this is what actually gets "submitted" -->
             <input type="hidden" id="apptTime" name="time" required />
             </div>
 
