@@ -1,52 +1,73 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
+import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { Login } from './login/login';
+import { Play } from './play/play';
+import { Scores } from './scores/scores';
+import { About } from './about/about';
 
 export default function App() {
-  return (<div className="body bg-dark text-light">
+  return (
+    <BrowserRouter>
+  <div className="body bg-dark text-light">
     <header>
             <h1>Kai Tuning<sup>&reg;</sup></h1>
-            <nav class="tabbar">
-                <a class="tab active" href="index.html">
-                    <span class="icon">
+            <nav className="tabbar">
+                <NavLink className="tab active" to="login">
+                    <span className="icon">
                         🏠
                     </span>
                     Home
-                </a>
-                <a class="tab" href="account.html">
-                    <span class="icon">
+                </NavLink>
+                <NavLink className="tab" to="account">
+                    <span className="icon">
                         👤
                     </span>
                     Account
-                </a>
-                <a class="tab" href="schedule.html">
-                    <span class="icon">
+                </NavLink>
+                <NavLink className="tab" to="schedule">
+                    <span className="icon">
                         📅
                     </span>
                     Schedule
-                </a>
-                <a class="tab" href="about.html">
-                    <span class="icon">
+                </NavLink>
+                <NavLink className="tab" to="about">
+                    <span className="icon">
                         ℹ️
                     </span>
                     About
-                </a>
+                </NavLink>
             </nav>
             <hr />
         </header>
 
         <main>App components go here</main>
 
-        <footer class="bg-dark text-light mt-5 border-top border-primary">
-        <div class="container py-4 text-center">
-            <p class="mb-1">Author: <strong>Vance Williams</strong></p>
+        <Routes>
+            <Route path='/' element={<Login />} exact />
+            <Route path='/play' element={<Play />} />
+            <Route path='/scores' element={<Scores />} />
+            <Route path='/about' element={<About />} />
+            <Route path='*' element={<NotFound />} />
+        </Routes>
+
+        <footer className="bg-dark text-light mt-5 border-top border-primary">
+        <div className="container py-4 text-center">
+            <p className="mb-1">Author: <strong>Vance Williams</strong></p>
             <a 
             href="https://github.com/Vaoikun/startup" 
-            class="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+            className="link-light link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
             >
             GitHub Repository
             </a>
         </div>
         </footer>
-  </div>);
+  </div>
+  </BrowserRouter>
+  );
+}
+
+function NotFound() {
+  return <main className="container-fluid bg-secondary text-center">404: Return to sender. Address unknown.</main>;
 }
