@@ -42,10 +42,10 @@ export default function App() {
             <hr />
         </header>
 
-        <main>App components go here</main>
+        <main className="nfs-tagline">Need For Speed...</main>
 
         <Routes>
-            <Route path='/' element={<Login />} exact />
+            <Route path='/' element={<Login />} />
             <Route path='/account' element={<Account />} />
             <Route path='/schedule' element={<Schedule />} />
             <Route path='/about' element={<About />} />
