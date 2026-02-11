@@ -3,8 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
 import { Login } from './login/login';
-import { Play } from './play/play';
-import { Scores } from './scores/scores';
+import { Account } from './account/account';
+import { Schedule } from './schedule/schedule';
 import { About } from './about/about';
 
 export default function App() {
@@ -14,7 +14,7 @@ export default function App() {
     <header>
             <h1>Kai Tuning<sup>&reg;</sup></h1>
             <nav className="tabbar">
-                <NavLink className="tab active" to="login">
+                <NavLink className="tab active" to="">
                     <span className="icon">
                         🏠
                     </span>
@@ -46,8 +46,8 @@ export default function App() {
 
         <Routes>
             <Route path='/' element={<Login />} exact />
-            <Route path='/play' element={<Play />} />
-            <Route path='/scores' element={<Scores />} />
+            <Route path='/account' element={<Account />} />
+            <Route path='/schedule' element={<Schedule />} />
             <Route path='/about' element={<About />} />
             <Route path='*' element={<NotFound />} />
         </Routes>
