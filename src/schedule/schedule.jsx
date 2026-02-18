@@ -32,7 +32,24 @@ function formatService(value) {
   return SERVICES.find((s) => s.value === value)?.label ?? value;
 }
 
-export function Schedule() {
+export function Schedule({ userName: userNameProp }) {
+    const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
+    const [data, setDate] = React.useState('');
+    const [time, setTime] = React.useState('');
+    const [service, setService] = React.useState('');
+    const [message, setMessage] = React.useState('');
+    const [appts, setAppts] = React.useState(() => listAppointments(userName));
+
+    // Continuous update
+    React.useEffect(() => {
+        setAppts(listAppointments(userName));
+    }, [userName]);
+
+    const onSelectSlot = (slotValue) => {
+        setTime(slotValue);
+        setMessage('');
+    };
+
   return (
     <main>
         <p className="note">Pick a date, choose a time slot, then submit.</p>
