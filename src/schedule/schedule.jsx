@@ -1,4 +1,5 @@
 import React from 'react';
+import './schedule.css';
 
 export function Schedule() {
   return (
