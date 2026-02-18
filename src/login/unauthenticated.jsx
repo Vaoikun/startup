@@ -21,11 +21,11 @@ export function Unauthenticated(props) {
     return (
         <>
         <form method="get" action="schedule.html">
-            <div classname="input-group mb-3">
+            <div className="input-group mb-3">
                 <span >@</span>
                 <input className='form-control'  type="text" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder="your@email.com" />
             </div>
-            <div classname="input-group mb-3">
+            <div className="input-group mb-3">
                 <span >🔒</span>
                 <input className='form-control' type="password" onChange={(e) => setPassword(e.target.value)} placeholder="password" />
             </div>

@@ -6,7 +6,7 @@ import { AuthState } from './authState';
 
 export function Login({ userName, authState, onAuthChange}) {
   return (
-        <main classname='container-fluid bg-secondary text-center'>
+        <main className='container-fluid bg-secondary'>
             <h2>Welcome to Kai Tuning</h2>
             <p>Welcome to the Kai Tuning project! This project is dedicated to providing resources and information about Kai Tuning.</p> 
             <h2>About Kai Tuning</h2> 
