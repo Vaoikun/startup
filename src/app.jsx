@@ -6,8 +6,12 @@ import { Login } from './login/login';
 import { Account } from './account/account';
 import { Schedule } from './schedule/schedule';
 import { About } from './about/about';
+import { AuthState } from './login/authState';
 
-export default function App() {
+function App() {
+    const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
+    const currentAuthState = userName ? AuthState.Authenticated : AuthState.Unauthenticated;
+    const [authState, setAuthState] = React.useState(currentAuthState);
   return (
     <BrowserRouter>
   <div className="body bg-dark text-light">
@@ -20,18 +24,22 @@ export default function App() {
                     </span>
                     Home
                 </NavLink>
+                {authState === AuthState.Authenticated && (
                 <NavLink className="tab" to="/account">
                     <span className="icon">
                         👤
                     </span>
                     Account
                 </NavLink>
+                )}
+                {authState === AuthState.Authenticated && (
                 <NavLink className="tab" to="/schedule">
                     <span className="icon">
                         📅
                     </span>
                     Schedule
                 </NavLink>
+                )}
                 <NavLink className="tab" to="/about">
                     <span className="icon">
                         ℹ️
@@ -42,11 +50,19 @@ export default function App() {
             <hr />
         </header>
 
+        <main className="nfs-tagline">Need For Speed...</main>
+
         <Routes>
-            <Route path='/' element={<>
-            <main className="nfs-tagline">Need For Speed...</main>
-            <Login />
-            </>} />
+            <Route path='/' element={
+            <Login 
+                userName={userName}
+                authState={authState}
+                onAuthChange={(userName, authState) => {
+                    setAuthState(authState);
+                    setUserName(userName);
+                }}
+            />
+            } />
             <Route path='/account' element={<Account />} />
             <Route path='/schedule' element={<Schedule />} />
             <Route path='/about' element={<About />} />
@@ -72,3 +88,5 @@ export default function App() {
 function NotFound() {
   return <main className="container-fluid bg-secondary text-center">404: Return to sender. Address unknown.</main>;
 }
+
+export default App;
