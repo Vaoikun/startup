@@ -7,7 +7,7 @@ import {
 } from './scheduleStorage';
 
 const SERVICES = [
-  { value: '', label: 'Choose one…' },
+  { value: '', label: 'Choose one' },
   { value: 'tune', label: 'Performance Tune' },
   { value: 'inspect', label: 'Full Inspection' },
   { value: 'diagnostic', label: 'ECU Diagnostic' },
@@ -34,7 +34,7 @@ function formatService(value) {
 
 export function Schedule({ userName: userNameProp }) {
     const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
-    const [data, setDate] = React.useState('');
+    const [date, setDate] = React.useState('');
     const [time, setTime] = React.useState('');
     const [service, setService] = React.useState('');
     const [message, setMessage] = React.useState('');
