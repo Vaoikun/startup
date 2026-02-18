@@ -6,7 +6,7 @@ main {
 
 main > h1 {
     margin: 10px 0 6px;
-    color: var(--text-color);
+    color: rgb(220, 179, 179);
     font-size: 1.9rem;
 }
 
@@ -14,7 +14,7 @@ main > h1 {
     display: grid;
     gap: 18px;
     grid-template-columns: 1fr;
-    color: var(--card-bg);
+    color: rgb(220, 179, 179);
 }
 
 main > p {
@@ -39,7 +39,7 @@ main > p {
 }
 
 .card h3{
-    color: var(--text-color);
+    color: rgb(220, 179, 179);
 }
 
 .kv {
@@ -47,7 +47,7 @@ main > p {
     justify-content: space-between;
     padding: 8px 0;
     border-bottom: 1px solid var(--border);
-    color: var(--text-color);
+    color: rgb(220, 179, 179);
 }
 
 .kv-row {
@@ -94,6 +94,64 @@ button:hover {
 
 button:active {
     transform: translateY(0);
+}
+
+.accountPage .muted { color: rgb(220, 179, 179); }
+
+.accountPage .list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.accountPage .item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,0.22);
+}
+
+.accountPage .itemSub { color: rgb(220, 179, 179); font-size: 0.95rem; }
+
+.accountPage .tableWrap {
+  overflow-x: auto;
+  margin-bottom: 10px;
+}
+
+.accountPage .carsTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.accountPage .carsTable th,
+.accountPage .carsTable td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: rgb(220, 179, 179);
+  white-space: nowrap;
+}
+
+.accountPage .carsTable th { color: rgb(220, 179, 179); font-weight: 700; }
+
+.accountPage .right { text-align: right; }
+
+.accountPage input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(0,0,0,0.22);
+  color: rgb(220, 179, 179);
+}
+
+.accountPage .msg {
+  margin-top: 10px;
+  color: rgb(220, 179, 179);
 }
 
 @media (min-width: 900px) {

@@ -108,7 +108,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
     }
 
   return (
-    <main>
+    <main className="accountPage">
             <h1>User Account</h1>
             <p>Welcome to your garage.</p>
 
