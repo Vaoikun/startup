@@ -179,7 +179,38 @@ export function Schedule({ userName: userNameProp }) {
             <button type="reset">Clear</button>
             </div>
         </form>
-        <p id="result" role="status" aria-live="polite"></p>
+
+        <p id="result" role="status" aria-live="polite">{message}</p>
+
+        <section className="apptList" aria-labelledby="apptListTitle">
+            <h2 id="apptListTitle">Your Appointments</h2>
+
+            {userName && appts.length === 0 && (
+            <p className="muted">No appointments yet.</p>
+            )}
+
+            {userName && appts.length > 0 && (
+            <ul className="list">
+                {appts
+                .slice()
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+                .map((a) => (
+                    <li key={a.id} className="item">
+                    <div className="itemMain">
+                        <div className="itemLine">
+                        <strong>{a.date}</strong> at <strong>{a.time}</strong>
+                        </div>
+                        <div className="itemSub">{formatService(a.service)}</div>
+                    </div>
+                    <button className="danger" type="button" onClick={() => onCancel(a.id)}>
+                        Cancel
+                    </button>
+                    </li>
+                ))}
+            </ul>
+            )}
+        </section>
+
         </main>
   );
 }
