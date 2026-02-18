@@ -21,13 +21,49 @@ export function Account({ userName: userNameProp, onAuthChange }) {
     const [cars, setCars] = React.useState(() => listCars(userName));
     const [carsMsg, setCarsMsg] = React.useState('');
 
+    React.useEffect(() => {
+        setProfileState(getProfile(userName));
+        setDisplayNameDraft(getProfile(userName).displayName || '');
+        setAppts(listAppointments(userName));
+        setCars(listCars(userName));
+    }, [userName]);
+
+    function logout() {
+        localStorage.removeItem('userName');
+        if (onAuthChange) onAuthChange('', AuthState.Unauthenticated);
+        navigate('/');
+    }
 
     function editAccount(){
+        setEditing(true);
+        setDisplayNameDraft(profile.displayName || '');
+    }
 
+    function saveEdit() {
+        const next = { ...profile, displayName: (displayNameDraft || '').trim() };
+        setProfile(userName, next);
+        setProfileState(next);
+        setEditing(false);
+    }
+
+    function cancelEdit() {
+        setEditing(false);
+        setDisplayNameDraft(profile.displayName || '');
     }
 
     function delAccout(){
+        clearAppointments(userName);
+        clearCars(userName);
+        clearProfile(userName);
 
+        localStorage.removeItem('userName');
+        if (onAuthChange) onAuthChange('', AuthState.Unauthenticated);
+        navigate('/');
+    }
+
+    function cancelAppt(apptId) {
+        removeAppointment(userName, apptId);
+        setAppts(listAppointments(userName));
     }
 
   return (
