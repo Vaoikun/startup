@@ -32,8 +32,7 @@ function formatService(value) {
   return SERVICES.find((s) => s.value === value)?.label ?? value;
 }
 
-export function Schedule({ userName: userNameProp }) {
-    const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
+export function Schedule({ userName }) {
     const [date, setDate] = React.useState('');
     const [time, setTime] = React.useState('');
     const [service, setService] = React.useState('');
@@ -83,7 +82,7 @@ export function Schedule({ userName: userNameProp }) {
             userName,
             date,     // "YYYY-MM-DD"
             time,     // "HH:MM"
-            service,  // one of SERVICES values
+            service,
             createdAt: new Date().toISOString(),
         };
 
@@ -122,12 +121,12 @@ export function Schedule({ userName: userNameProp }) {
         <form id="apptForm" onSubmit={onSubmit} onReset={onClear}>
             <div className="row">
             <label htmlFor="apptDate"><strong>Date:</strong></label>
-            <input              
+            <input
             id="apptDate"
             name="date"
             type="date"
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => {setDate(e.target.value); setMessage('');}}
             required
             />
             </div>
@@ -143,11 +142,10 @@ export function Schedule({ userName: userNameProp }) {
                         key={s.value}
                         className={`slot ${selected ? 'selected' : ''}`}
                         type="button"
-                        data-time={s.value}
                         aria-pressed={selected}
                         disabled={booked}
                         title={booked ? 'Already booked for this account' : 'Select this time'}
-                        onClick={() => onPickSlot(s.value)}
+                        onClick={() => {onSelectSlot(s.value)}}
                         >
                         {s.label}
                         </button>
