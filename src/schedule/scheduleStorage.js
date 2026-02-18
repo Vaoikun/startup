@@ -16,6 +16,7 @@ function jsonParse(json, fallback) {
   }
 }
 
+//Appointment set up
 export function saveAppointments(userName, appts) {
     localStorage.setItem(keyForUser(userName), JSON.stringify(appts))
 }
