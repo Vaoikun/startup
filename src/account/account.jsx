@@ -1,6 +1,18 @@
 import React from 'react';
+import Button from 'react-bootstrap/Button';
+import { useNavigate } from 'react-router-dom';
 
-export function Account() {
+export function Account(props) {
+    const navigate = useNavigate();
+
+    function editAccount(){
+
+    }
+
+    function delAccout(){
+
+    }
+
   return (
     <main>
             <h1>User Account</h1>
@@ -13,8 +25,12 @@ export function Account() {
                     </div>
 
                     <div className="actions">
-                        <button type="button" id="editAcctBtn">Edit</button>
-                        <button type="button" id="delAcctBtn">Delete</button>
+                        <Button variant='secondary' onClick={() => editAccount()}>
+                            Edit
+                        </Button>
+                        <Button variant='secondary' onClick={() => delAccout()}>
+                            Delete Account
+                        </Button>
                     </div>
                 </div>
                 <div className="card" aria-labelledby="apptListTitle">
@@ -22,6 +38,9 @@ export function Account() {
                     <div id="apptList">
                         <p>No upcoming appointments.</p>
                     </div>
+                    <Button variant='primary' onClick={() => navigate('/schedule')}>
+                        Make Appointments
+                    </Button>
                 </div>
                 <div className="card" aria-labelledby="vehListTitle">
                     <h2 id="vehListTitle">Vehicles</h2>
