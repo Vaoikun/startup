@@ -2,9 +2,25 @@ import React from 'react';
 import './account.css';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
+import { AuthState } from '../login/authState';
+import { listAppointments, removeAppointment, clearAppointments } from '../schedule/scheduleStorage';
+import { addCar, listCars, removeCar, getProfile, setProfile, clearProfile, clearCars } from './accountStorage';
 
-export function Account(props) {
+function newId() {
+    return (globalThis.crypto?.randomUUID?.() ??
+        `id_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+}
+
+export function Account({ userName: userNameProp, onAuthChange }) {
     const navigate = useNavigate();
+    const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
+    const [profile, setProfileState] = React.useState(() => getProfile(userName));
+    const [editing, setEditing] = React.useState(false);
+    const [displayNameDraft, setDisplayNameDraft] = React.useState(profile.displayName || '');
+    const [appts, setAppts] = React.useState(() => listAppointments(userName));
+    const [cars, setCars] = React.useState(() => listCars(userName));
+    const [carsMsg, setCarsMsg] = React.useState('');
+
 
     function editAccount(){
 
