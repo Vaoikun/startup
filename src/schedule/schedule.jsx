@@ -50,6 +50,65 @@ export function Schedule({ userName: userNameProp }) {
         setMessage('');
     };
 
+    const onClear = () => {
+        setDate('');
+        setTime('');
+        setService('');
+        setMessage('');
+    };
+
+    const onSubmit = (e) => {
+        e.preventDefault();
+        setMessage('');
+
+        if (!userName) {
+            setMessage('Authentication Error.');
+            return;
+        }
+        if (!date) {
+            setMessage('Pick a date.');
+            return;
+        }
+        if (!time) {
+            setMessage('Pick a time slot.');
+            return;
+        }
+        if (!service) {
+            setMessage('Choose a service.');
+            return;
+        }
+
+        const appt = {
+            id: newId(),
+            userName,
+            date,     // "YYYY-MM-DD"
+            time,     // "HH:MM"
+            service,  // one of SERVICES values
+            createdAt: new Date().toISOString(),
+        };
+
+        const res = addAppointment(userName, appt);
+            if (!res.ok) {
+            setMessage(res.error || 'Could not schedule appointment.');
+            return;
+        }
+
+        setAppts(listAppointments(userName));
+        setMessage('Appointment scheduled!');
+        setTime('');
+    };
+
+    const onCancel = (apptId) => {
+        removeAppointment(userName, apptId);
+        setAppts(listAppointments(userName));
+        setMessage('Appointment cancelled.');
+    };
+
+    const bookedTimesForSelectedDate = React.useMemo(() => {
+        if (!date) return new Set();
+        return new Set(appts.filter((a) => a.date === date).map((a) => a.time));
+    }, [appts, date]);
+
   return (
     <main>
         <p className="note">Pick a date, choose a time slot, then submit.</p>
