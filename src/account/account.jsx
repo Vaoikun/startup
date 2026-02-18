@@ -68,9 +68,11 @@ export function Account(props) {
                         <input name="model" placeholder="Model" required />
                         <input name="trim" placeholder="Trim (optional)" />
                         <input name="vinLast4" placeholder="VIN last 4" maxLength={4} />
-                        <button type="submit">Add</button>
                         </div>
                     </form>
+                    <Button variant='primary' onClick={() => 0}>
+                        Add a Car
+                    </Button>
                     <p id="carsMsg" role="status" aria-live="polite"></p>
                 </div>
             </section>
