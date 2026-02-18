@@ -1,7 +1,7 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './app.css';
-import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, NavLink, Route, Routes, Navigate } from 'react-router-dom';
 import { Login } from './login/login';
 import { Account } from './account/account';
 import { Schedule } from './schedule/schedule';
@@ -12,20 +12,22 @@ function App() {
     const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
     const currentAuthState = userName ? AuthState.Authenticated : AuthState.Unauthenticated;
     const [authState, setAuthState] = React.useState(currentAuthState);
+    const tabClass = ({ isActive }) => `tab ${isActive ? 'active' : ''}`;
+
   return (
     <BrowserRouter>
   <div className="body bg-dark text-light">
     <header>
             <h1>Kai Tuning<sup>&reg;</sup></h1>
             <nav className="tabbar">
-                <NavLink className="tab active" to="/">
+                <NavLink className={tabClass} to="/">
                     <span className="icon">
                         🏠
                     </span>
                     Home
                 </NavLink>
                 {authState === AuthState.Authenticated && (
-                <NavLink className="tab" to="/account">
+                <NavLink className={tabClass} to="/account">
                     <span className="icon">
                         👤
                     </span>
@@ -33,14 +35,14 @@ function App() {
                 </NavLink>
                 )}
                 {authState === AuthState.Authenticated && (
-                <NavLink className="tab" to="/schedule">
+                <NavLink className={tabClass} to="/schedule">
                     <span className="icon">
                         📅
                     </span>
                     Schedule
                 </NavLink>
                 )}
-                <NavLink className="tab" to="/about">
+                <NavLink className={tabClass} to="/about">
                     <span className="icon">
                         ℹ️
                     </span>
@@ -63,8 +65,12 @@ function App() {
                 }}
             />
             } />
-            <Route path='/account' element={<Account />} />
-            <Route path='/schedule' element={<Schedule />} />
+            <Route path='/account' element={authState === AuthState.Authenticated ? <Account /> : <Navigate to="/" replace/> } />
+            <Route path='/schedule' element={authState === AuthState.Authenticated ? (
+                <Schedule userName={userName} />
+              ) : (
+                <Navigate to="/" replace />
+              )} />
             <Route path='/about' element={<About />} />
             <Route path='*' element={<NotFound />} />
         </Routes>
