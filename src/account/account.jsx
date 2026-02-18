@@ -51,7 +51,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         setDisplayNameDraft(profile.displayName || '');
     }
 
-    function delAccout(){
+    function delAccount(){
         clearAppointments(userName);
         clearCars(userName);
         clearProfile(userName);
@@ -66,6 +66,47 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         setAppts(listAppointments(userName));
     }
 
+    function submitCar(e) {
+        e.preventDefault();
+        setCarsMsg('');
+
+        const fd = new FormData(e.target);
+        const car = {
+        id: newId(),
+        nickname: (fd.get('nickname') || '').toString().trim(),
+        year: (fd.get('year') || '').toString().trim(),
+        make: (fd.get('make') || '').toString().trim(),
+        model: (fd.get('model') || '').toString().trim(),
+        trim: (fd.get('trim') || '').toString().trim(),
+        vinLast4: (fd.get('vinLast4') || '').toString().trim(),
+        createdAt: new Date().toISOString(),
+        };
+
+        if (!car.nickname || !car.year || !car.make || !car.model) {
+        setCarsMsg('Please fill out Nickname, Year, Make, and Model.');
+        return;
+        }
+        if (car.vinLast4 && car.vinLast4.length !== 4) {
+        setCarsMsg('VIN last 4 must be exactly 4 characters (or leave blank).');
+        return;
+        }
+
+        const res = addCar(userName, car);
+        if (!res.ok) {
+        setCarsMsg(res.error || 'Could not add car.');
+        return;
+        }
+
+        setCars(listCars(userName));
+        e.target.reset();
+        setCarsMsg('Car added!');
+    }
+
+    function deleteCar(carId) {
+        removeCar(userName, carId);
+        setCars(listCars(userName));
+    }
+
   return (
     <main>
             <h1>User Account</h1>
@@ -75,45 +116,112 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                  <div className="card" aria-labelledby="acctInfoTitle">
                     <h2 id="acctInfoTitle">Account Info</h2>
                     <div className="kv" id="acctInfo">
+                        <div className="k">Username</div>
+                        <div className="v">{userName}</div>
                     </div>
 
-                    <div className="actions">
+                    <div className="kv-row">
+                    <div className="k">Display name</div>
+                    <div className="v">
+                        {editing ? (
+                        <input
+                            className="inlineInput"
+                            value={displayNameDraft}
+                            onChange={(e) => setDisplayNameDraft(e.target.value)}
+                            placeholder="Optional"
+                        />
+                        ) : (
+                        (profile.displayName || <span className="muted">Not set</span>)
+                        )}
+                    </div>
+                </div>
+
+                <div className="actions">
+                    {!editing ? (
                         <Button variant='secondary' onClick={() => editAccount()}>
                             Edit
                         </Button>
-                        <Button variant='secondary' onClick={() => delAccout()}>
-                            Delete Account
-                        </Button>
-                    </div>
+                    ) : (
+                        <>
+                        <Button variant="primary" onClick={saveEdit}>Save</Button>
+                        <Button variant="secondary" onClick={cancelEdit}>Cancel</Button>
+                        </>
+                    )}
+                    <Button variant="outline-light" onClick={logout}>Log out</Button>
+                    <Button variant="danger" onClick={delAccount}>Delete Account</Button>
                 </div>
+                </div> 
+
                 <div className="card" aria-labelledby="apptListTitle">
                     <h2 id="apptListTitle">Appointments</h2>
-                    <div id="apptList">
-                        <p>No upcoming appointments.</p>
-                    </div>
+                    {appts.length === 0 ? (
+                        <p className="muted">No upcoming appointments.</p>
+                    ) : (
+                        <ul className="list">
+                        {appts
+                            .slice()
+                            .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+                            .map((a) => (
+                            <li key={a.id} className="item">
+                                <div>
+                                <div className="itemLine">
+                                    <strong>{a.date}</strong> at <strong>{a.time}</strong>
+                                </div>
+                                <div className="itemSub">{a.service}</div>
+                                </div>
+                                <Button variant="outline-danger" size="sm" onClick={() => cancelAppt(a.id)}>
+                                Cancel
+                                </Button>
+                            </li>
+                            ))}
+                        </ul>
+                    )}
+
                     <Button variant='primary' onClick={() => navigate('/schedule')}>
                         Make Appointments
                     </Button>
                 </div>
                 <div className="card" aria-labelledby="vehListTitle">
                     <h2 id="vehListTitle">Vehicles</h2>
-                    <div id="vehList">
-                    </div>
-                    <table aria-label="Linked cars table">
-                        <thead>
-                        <tr>
-                            <th>Nickname</th>
-                            <th>Year</th>
-                            <th>Make</th>
-                            <th>Model</th>
-                            <th>Trim</th>
-                            <th>VIN (last 4)</th>
-                        </tr>
-                        </thead>
-                        <tbody id="carsTbody"></tbody>
-                    </table>
+                    {cars.length === 0 ? (
+                        <p className="muted">No vehicles yet.</p>
+                    ) : (
+                        <div className="tableWrap">
+                        <table aria-label="Linked cars table" className="carsTable">
+                            <thead>
+                            <tr>
+                                <th>Nickname</th>
+                                <th>Year</th>
+                                <th>Make</th>
+                                <th>Model</th>
+                                <th>Trim</th>
+                                <th>VIN (last 4)</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {cars.map((c) => (
+                                <tr key={c.id}>
+                                <td>{c.nickname}</td>
+                                <td>{c.year}</td>
+                                <td>{c.make}</td>
+                                <td>{c.model}</td>
+                                <td>{c.trim || '-'}</td>
+                                <td>{c.vinLast4 || '-'}</td>
+                                <td className="right">
+                                    <Button variant="outline-danger" size="sm" onClick={() => deleteCar(c.id)}>
+                                    Remove
+                                    </Button>
+                                </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                        </div>
+                    )}
+
                     <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
-                    <form id="addCarForm">
+                    <form id="addCarForm" onSubmit={submitCar}>
                         <div className="actions">
                         <input name="nickname" placeholder="Nickname (e.g., Daily)" required />
                         <input name="year" placeholder="Year" inputMode="numeric" required />
@@ -122,11 +230,13 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                         <input name="trim" placeholder="Trim (optional)" />
                         <input name="vinLast4" placeholder="VIN last 4" maxLength={4} />
                         </div>
+
+                        <div className='actions' style={{marginTop: 10}}>
+                            <Button type='submit' variant='primary'>Add Car</Button>
+                        </div>
                     </form>
-                    <Button variant='primary' onClick={() => 0}>
-                        Add a Car
-                    </Button>
-                    <p id="carsMsg" role="status" aria-live="polite"></p>
+
+                    <p id="carsMsg" role="status" aria-live="polite" className="msg">{carsMsg}</p>
                 </div>
             </section>
         </main>
