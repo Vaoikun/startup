@@ -22,7 +22,7 @@ export function saveAppointments(userName, appts) {
 
 export function listAppointments(userName) {
     const raw = localStorage.getItem(keyForUser(userName));
-    const appts = safeParse(raw, []);
+    const appts = jsonParse(raw, []);
     // Ensure consistent shape
     return Array.isArray(appts) ? appts : [];
 }

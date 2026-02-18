@@ -12,6 +12,12 @@ function App() {
     const [userName, setUserName] = React.useState(localStorage.getItem('userName') || '');
     const currentAuthState = userName ? AuthState.Authenticated : AuthState.Unauthenticated;
     const [authState, setAuthState] = React.useState(currentAuthState);
+    // Real time changes
+    React.useEffect(() => {
+        const u = localStorage.getItem('userName') || '';
+        setUserName(u);
+        setAuthState(u ? AuthState.Authenticated : AuthState.Unauthenticated);
+    }, []);
     const tabClass = ({ isActive }) => `tab ${isActive ? 'active' : ''}`;
 
   return (
@@ -59,13 +65,23 @@ function App() {
             <Login 
                 userName={userName}
                 authState={authState}
-                onAuthChange={(userName, authState) => {
-                    setAuthState(authState);
-                    setUserName(userName);
+                onAuthChange={(newUserName, newAuthState) => {
+                    setAuthState(newAuthState);
+                    setUserName(newUserName);
                 }}
             />
             } />
-            <Route path='/account' element={authState === AuthState.Authenticated ? <Account /> : <Navigate to="/" replace/> } />
+            <Route path='/account' element={authState === AuthState.Authenticated ? (
+                    <Account
+                    userName={userName}
+                    onAuthChange={(nextUserName, nextAuthState) => {
+                        setAuthState(nextAuthState);
+                        setUserName(nextUserName);
+                    }}
+                    />
+                ) : (
+                    <Navigate to="/" replace />
+            )}/>
             <Route path='/schedule' element={authState === AuthState.Authenticated ? (
                 <Schedule userName={userName} />
               ) : (
