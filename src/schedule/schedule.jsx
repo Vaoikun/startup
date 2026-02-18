@@ -145,7 +145,7 @@ export function Schedule({ userName }) {
                         aria-pressed={selected}
                         disabled={booked}
                         title={booked ? 'Already booked for this account' : 'Select this time'}
-                        onClick={() => {onSelectSlot(s.value)}}
+                        onClick={() => {onSelectSlot(s.value);}}
                         >
                         {s.label}
                         </button>
@@ -163,7 +163,7 @@ export function Schedule({ userName }) {
                     id="service"
                     name="service"
                     value={service}
-                    onChange={(e) => setService(e.target.value)}
+                    onChange={(e) => {setService(e.target.value); setMessage('');}}
                     required
                 >
                     {SERVICES.map((s) => (
