@@ -15,18 +15,6 @@ export function Login({ userName, authState, onAuthChange}) {
             <p>Kai Tuning is a method of optimizing performance and efficiency in various systems. It involves fine-tuning parameters to achieve the best possible results.</p> &&
             <p>Login or create a new accout to make an appointment!</p>
             }
-            <form method="get" action="schedule.html">
-                <div>
-                <span>@</span>
-                <input type="text" placeholder="your@email.com" />
-                </div>
-                <div>
-                <span>🔒</span>
-                <input type="password" placeholder="password" />
-                </div>
-                <button type="submit">Login</button>
-                <button type="submit">Create</button>
-            </form>
           </div>
         </main>
   );
