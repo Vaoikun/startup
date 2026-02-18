@@ -13,7 +13,7 @@ export function Login({ userName, authState, onAuthChange}) {
             <p>Kai Tuning is a method of optimizing performance and efficiency in various systems. It involves fine-tuning parameters to achieve the best possible results.</p>
           <div>
             {authState !== AuthState.Unknown && 
-            <p>Login or create an accout to make an appointment!</p>
+            <p>Login or create an account to make an appointment!</p>
             }
             {authState === AuthState.Authenticated && (
               <Authenticated userName={userName} onLogout={() => onAuthChange(userName, AuthState.Unauthenticated)}/>

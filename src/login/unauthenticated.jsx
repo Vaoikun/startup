@@ -20,7 +20,7 @@ export function Unauthenticated(props) {
 
     return (
         <>
-        <form method="get" action="schedule.html">
+        <form onSubmit={(e) => {e.preventDefault(); loginUser();}}>
             <div className="input-group mb-3">
                 <span >@</span>
                 <input className='form-control'  type="text" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder="your@email.com" />
@@ -29,10 +29,10 @@ export function Unauthenticated(props) {
                 <span >🔒</span>
                 <input className='form-control' type="password" onChange={(e) => setPassword(e.target.value)} placeholder="password" />
             </div>
-            <Button variant='primary' onClick={() => loginUser()} disabled={!userName || !password}>
+            <Button type="submit" variant='primary' disabled={!userName || !password}>
             Login
             </Button>
-            <Button variant='secondary' onClick={() => createUser()} disabled={!userName || !password}>
+            <Button type='button' variant='secondary' onClick={createUser} disabled={!userName || !password}>
             Create
             </Button>
         </form>
