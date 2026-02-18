@@ -1,5 +1,36 @@
 import React from 'react';
 import './schedule.css';
+import {
+  listAppointments,
+  addAppointment,
+  removeAppointment,
+} from './scheduleStorage';
+
+const SERVICES = [
+  { value: '', label: 'Choose one…' },
+  { value: 'tune', label: 'Performance Tune' },
+  { value: 'inspect', label: 'Full Inspection' },
+  { value: 'diagnostic', label: 'ECU Diagnostic' },
+  { value: 'consult', label: 'Consulting' },
+];
+
+const SLOTS = [
+  { value: '09:00', label: '9:00 AM' },
+  { value: '10:00', label: '10:00 AM' },
+  { value: '11:00', label: '11:00 AM' },
+  { value: '13:00', label: '1:00 PM' },
+  { value: '14:00', label: '2:00 PM' },
+  { value: '15:00', label: '3:00 PM' },
+  { value: '16:00', label: '4:00 PM' },
+];
+
+function newId() {
+  return (globalThis.crypto?.randomUUID?.() ?? `appt_${Date.now()}_${Math.random().toString(16).slice(2)}`);
+}
+
+function formatService(value) {
+  return SERVICES.find((s) => s.value === value)?.label ?? value;
+}
 
 export function Schedule() {
   return (
