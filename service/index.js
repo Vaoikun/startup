@@ -10,16 +10,30 @@ const authCookieName = 'token';
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
 // In-memory user database. In production this would be a real database.
-const users = {
-  'alice': {
-    username: 'alice',
-    passwordHash: bcrypt.hashSync('password123', 10),
-  },
-  'bob': {
-    username: 'bob',
-    passwordHash: bcrypt.hashSync('securepassword', 10),
-  },
-};
+let users = [];
+let vehicles = [];
+let appointments = [];
+
+// Create a new user account
+async function createUser(email, password) {
+  const user = {
+    id: uuid.v4(),
+    email,
+    password: await bcrypt.hash(password, 10),
+  };
+  users.push(user);
+  return user;
+}
+
+// Find a user by a specific field and value
+async function findUser(field, value) {
+  return users.find((u) => u[field] === value);
+}
+
+// Set the authentication cookie for a user
+function setAuthCookie(res, token) {
+  res.cookie(authCookieName, token, { httpOnly: true });
+}
 
 // In-memory session store. In production this would be a real session store.
 const sessions = {};
@@ -84,6 +98,15 @@ const verifyAuth = async (req, res, next) => {
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
+});
+
+// Return the application's default page if the path is unknown
+app.use((_req, res) => {
+  res.sendFile('index.html', { root: 'public' });
+});
+
+app.get('*', (_req, res) => {
+  res.send({ msg: 'Simon service' });
 });
 
 // Start the server
