@@ -33,53 +33,52 @@ app.use(express.static('public'));
 var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// CreateAuth endpoint for new user registration
-apiRouter.post('/createAuth', (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+// CreateAuth a new user account
+apiRouter.post('/auth/create', async (req, res) => {
+  if (await findUser('email', req.body.email)) {
+    res.status(409).send({ msg: 'Existing user' });
+  } else {
+    const user = await createUser(req.body.email, req.body.password);
+
+    setAuthCookie(res, user.token);
+    res.send({ email: user.email });
   }
-  if (users[username]) {
-    return res.status(400).json({ error: 'Username already exists' });
-  }
-  const passwordHash = bcrypt.hashSync(password, 10);
-  users[username] = { username, passwordHash };
-  res.json({ message: 'User created successfully' });
 });
 
-// Login endpoint for user authentication
-apiRouter.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = users[username];
-  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
-    return res.status(401).json({ error: 'Invalid username or password' });
+// GetAuth login an existing user
+apiRouter.post('/auth/login', async (req, res) => {
+  const user = await findUser('email', req.body.email);
+  if (user) {
+    if (await bcrypt.compare(req.body.password, user.password)) {
+      user.token = uuid.v4();
+      setAuthCookie(res, user.token);
+      res.send({ email: user.email });
+      return;
+    }
   }
-  const token = uuid.v4();
-  sessions[token] = username;
-  res.cookie(authCookieName, token, { httpOnly: true });
-  res.json({ message: 'Login successful' });
+  res.status(401).send({ msg: 'Unauthorized' });
 });
 
-// Logout endpoint for user logout
-apiRouter.post('/logout', (req, res) => {
-  const token = req.cookies[authCookieName];
-  if (token) {
-    delete sessions[token];
-    res.clearCookie(authCookieName);
+// DeleteAuth logout a user
+apiRouter.delete('/auth/logout', async (req, res) => {
+  const user = await findUser('token', req.cookies[authCookieName]);
+  if (user) {
+    delete user.token;
   }
-  res.json({ message: 'Logout successful' });
+  res.clearCookie(authCookieName);
+  res.status(204).end();
 });
 
-// Middleware to authenticate requests
-function authenticate(req, res, next) {
-  const token = req.cookies[authCookieName];
-  if (token && sessions[token]) {
-    req.username = sessions[token];
+
+// Middleware to verify that the user is authorized to call an endpoint
+const verifyAuth = async (req, res, next) => {
+  const user = await findUser('token', req.cookies[authCookieName]);
+  if (user) {
     next();
   } else {
-    res.status(401).json({ error: 'Unauthorized' });
+    res.status(401).send({ msg: 'Unauthorized' });
   }
-}
+};
 
 // Default error handler
 app.use((err, req, res, next) => {
