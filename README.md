@@ -128,7 +128,7 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **Node.js/Express HTTP service** - I did not complete this part of the deliverable.
+- [ ] **Node.js/Express HTTP service** - Installed Express with NPM. Default port on 4000.js`.
 - [ ] **Static middleware for frontend** - I did not complete this part of the deliverable.
 - [ ] **Calls to third party endpoints** - I did not complete this part of the deliverable.
 - [ ] **Backend service endpoints** - I did not complete this part of the deliverable.
