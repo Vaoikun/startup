@@ -2,8 +2,8 @@ const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const express = require('express');
 const uuid = require('uuid');
+const path = require('path');
 const app = express();
-
 const authCookieName = 'token';
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
@@ -25,17 +25,28 @@ app.use(`/api`, apiRouter);
 
 // CreateAuth a new user account
 apiRouter.post('/auth/create', async (req, res) => {
-  if (await findUser('email', req.body.email)) {
+  const userName = (req.body.email || req.body.userName || '').trim();
+  const password = req.body.password || '';
+  
+  if (!userName || !password) {
+    return res.status(400).send({ msg: 'Missing email or password' });
+  }
+
+  if (await findUser('userName', userName)) {
     return res.status(409).send({ msg: 'Existing user' });
   }
-  const user = await createUser(req.body.email, req.body.password);
+  const user = await createUser(userName, password);
   setAuthCookie(res, user.token);
-  res.send({ email: user.email });
+  res.send({ 
+    userName: user.userName,
+    email: user.email,
+    displayName: user.displayName,
+   });
 });
 
 // GetAuth login an existing user
 apiRouter.post('/auth/login', async (req, res) => {
-  const user = await findUser('email', req.body.email);
+  const userName = await findUser('email', req.body.email);
 
   if (user && await bcrypt.compare(req.body.password, user.password)) {
     user.token = uuid.v4();
@@ -57,12 +68,13 @@ apiRouter.delete('/auth/logout', async (req, res) => {
 
 // Middleware to verify that the user is authorized to call an endpoint
 const verifyAuth = async (req, res, next) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  if (user) {
-    next();
-  } else {
-    res.status(401).send({ msg: 'Unauthorized' });
+  const token = req.cookies[authCookieName];
+  const user = await findUser('token', token);
+  if (!user) {
+    return res.status(401).send({ msg: 'Unauthorized' });
   }
+  req.user = user;
+  next();
 };
 
 // Get the current user's account information
@@ -136,9 +148,12 @@ app.use((_req, res) => {
 async function createUser(email, password) {
   const user = {
     id: uuid.v4(),
-    email,
+    userName,
+    email: userName,
+    displayName: '',
     password: await bcrypt.hash(password, 10),
     token: uuid.v4(),
+    createdAt: new Date().toISOString(),
   };
   users.push(user);
   return user;
@@ -151,7 +166,11 @@ async function findUser(field, value) {
 
 // Set the authentication cookie for a user
 function setAuthCookie(res, token) {
-  res.cookie(authCookieName, token, { httpOnly: true });
+    res.cookie(authCookieName, token, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: false,
+  });
 }
 
 // Start the server
