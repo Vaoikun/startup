@@ -47,23 +47,24 @@ apiRouter.post('/auth/create', async (req, res) => {
 // GetAuth login an existing user
 apiRouter.post('/auth/login', async (req, res) => {
   const userName = await findUser('email', req.body.email);
+  const password = req.body.password || '';
 
-  if (user && await bcrypt.compare(req.body.password, user.password)) {
-    user.token = uuid.v4();
-    setAuthCookie(res, user.token);
-    return res.send({ email: user.email });
+  if (!userName || !password) {
+    return res.status(400).send({msg: 'Username(email) and password requested'});
   }
-  res.status(401).send({ msg: 'Invalid email or password' });
-});
+  const user = await findUser('userName', userName);
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).send({msg: 'Invalid username(email) or password'});
+  }
 
-// DeleteAuth logout a user
-apiRouter.delete('/auth/logout', async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  if (user) {
-    delete user.token;
-  }
-  res.clearCookie(authCookieName);
-  res.status(204).end();
+  user.token = uuid.v4();
+  setAuthCookie(res, user.token);
+
+  res.send({
+    userName: user.userName,
+    email: user.email,
+    displayName: user.displayName,
+  });
 });
 
 // Middleware to verify that the user is authorized to call an endpoint
@@ -77,71 +78,195 @@ const verifyAuth = async (req, res, next) => {
   next();
 };
 
+// Delete the current user's account infromation
+apiRouter.delete('/auth/logout', verifyAuth, async(req, res) => {
+  delete req.user.token;
+  res.clearCookie(authCookieName);
+  res.status(204).end();
+})
+
 // Get the current user's account information
 apiRouter.get('/account', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  res.send({ email: user.email });
+  res.send({
+    userName: req.user.userName,
+    email: req.user.email,
+    displayName: req.user.displayName || '',
+  });
+});
+
+apiRouter.put('/account', verifyAuth, async (req, res) => {
+  const displayName = (req.body.displayName || '').trim();
+  req.user.displayName = displayName;
+
+  res.send({
+    userName: req.user.userName;
+    email: req.user.email,
+    displayName: req.user.displayName,
+  });
+})
+
+apiRouter.delete('/account', verifyAuth, async (req, res) => {
+  const userId = req.user.id;
+  const userName = req.user.userName;
+  vehicles = vehicles.filter((v) => v.userId !== userId);
+  appointments = appointments.filter((a) => a.userName !== userName);
+  users = users.filter((u) => u.id !== userId);
+
+  res.clearCookie(authCookieName);
+  res.status(204).end();
 });
 
 // Get the current user's vehicles
 apiRouter.get('/vehicles', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  const userVehicles = vehicles.filter((v) => v.userId === user.id);
+  const userVehicles = vehicles.filter((v) => v.userId === req.user.id);
   res.send(userVehicles);
 });
 
 // Add a vehicle to the current user's account
 apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  if (!req.body.make || !req.body.model || !req.body.year) {
-    return res.status(400).send({ msg: 'Missing vehicle information' });
+  const nickname = (req.body.nickname || '').trim();
+  const year = (req.body.year || '').trim();
+  const make = (req.body.make || '').trim();
+  const model = (req.body.model || '').trim();
+  const trim = (req.body.trim || '').trim();
+  const vinLast4 = (req.body.vinLast4 || '').trim();
+
+  if(!year || !make || !model) {
+    return res.status(400).send({
+      msg: 'Please fill out Year, Make and Model.',
+    });
   }
+
+  if (vinLast4 && vinLast4.length !== 4) {
+    return res.status(400).send({
+      msg: 'VIN last 4 must be exactly 4 characters (or leave blank).',
+    });
+  }
+
   const vehicle = {
     id: uuid.v4(),
-    userId: user.id,
-    make: req.body.make,
-    model: req.body.model,
-    year: req.body.year,
+    userId: req.user.id,
+    userName: req.user.userName,
+    nickname,
+    year,
+    make,
+    model,
+    trim,
+    vinLast4,
+    createdAt: new Date().toISOString(),
   };
   vehicles.push(vehicle);
   res.send(vehicle);
 });
 
+apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) =>{
+  const before = vehicles.length;
+  vehicles = vehicles.filter(
+    (v) => !(v.id === req.params.id && v.userId === req.user.id)
+  );
+  if (vehicles.length === before) {
+    return res.status(404).send({ msg: 'Vehicle not found.'});
+  }
+  res.status(204).end();
+});
+
 // Get the current user's appointments
 apiRouter.get('/appointments', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  const userAppointments = appointments.filter((a) => a.userId === user.id);
+  const userAppointments = appointments.filter(
+    (a) => a.userName === req.user.userName
+  );
   res.send(userAppointments);
 });
 
 // Add an appointment to the current user's account
 apiRouter.post('/appointments', verifyAuth, async (req, res) => {
-  const user = await findUser('token', req.cookies[authCookieName]);
-  const appointment = {
+  const date = (req.body.date || '').trim();
+  const time = (req.body.time || '').trim();
+  const service = (req.body.service || '').trim();
+  const vehicleId = (req.body.vehicleId || '').tirm();
+
+  if (!date) {
+    return res.status(400).send({ msg: 'Pick a date.'});
+  }
+  if (!time) {
+    return res.status(400).send({ msg: 'Pick a time slot.'});
+  }
+  if (!service) {
+    return res.status(400).send({ msg: 'Select a service.'});
+  }
+
+  const validServices = ['tune', 'inspect', 'diagnostic', 'consult'];
+  if (!validServices.includes(service)) {
+    return res.status(400).send({msg:'Invalid service.'})
+  }
+  const duplicate = appointments.find(
+    (a) => 
+      a.userName === req.user.userName && a.date === date && a.time === time
+  );
+
+  if (duplicate) {
+    return res.status(409).send({
+      msg: 'Time slot taken already.'
+    });
+  }
+
+  let linkedVehicleId = '';
+  if (vehicleId) {
+    const vehicle = vehicles.find(
+      (v) => v.id === vehicleId && v.userId === req.user.id
+    );
+    if (!vehicle) {
+      return res.status(400).send({ msg: 'Invalid vehicleId.'});
+    }
+    linkedVehicleId = vehicleId;
+  }
+
+  const appt = {
     id: uuid.v4(),
-    userId: user.id,
-    vehicleId: req.body.vehicleId,
-    date: req.body.date,
-    service: req.body.service,
+    userName: req.user.userName,
+    userId: req.user.id,
+    vehicleId: linkedVehicleId,
+    date,
+    time,
+    service,
+    createdAt: new Date().toISOString(),
   };
-  appointments.push(appointment);
-  res.send(appointment);
+
+  appointments.push(appt)
+  res.send(appt);
 });
 
-// Default error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-});
+apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
+  const before = appointments.length;
+  appointments = appointments.filter(
+    (a) => !(a.id === req.params.id && a.userName == req.user.userName)
+  );
+  if (appointments.length === before) {
+    return res.status(404).send({msg:'Appointment not found.'});
+  }
+  res.status(204).end();
+})
 
 // Return the application's default page if the path is unknown
-
 app.get('/service', (_req, res) => {
   res.send({ msg: 'Startup service' });
 });
 
-app.use((_req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+// SPA fallback
+app.use((req, res, next) => {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) next();
+  });
+});
+
+app.use((req, res) => {
+  res.status(404).send({ msg: 'Not found' });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 // Create a new user account
