@@ -99,7 +99,7 @@ apiRouter.put('/account', verifyAuth, async (req, res) => {
   req.user.displayName = displayName;
 
   res.send({
-    userName: req.user.userName;
+    userName: req.user.userName,
     email: req.user.email,
     displayName: req.user.displayName,
   });
