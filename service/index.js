@@ -46,7 +46,7 @@ apiRouter.post('/auth/create', async (req, res) => {
 
 // GetAuth login an existing user
 apiRouter.post('/auth/login', async (req, res) => {
-  const userName = await findUser('email', req.body.email);
+  const userName = (req.body.email || req.body.userName || '').trim();
   const password = req.body.password || '';
 
   if (!userName || !password) {

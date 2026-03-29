@@ -15,49 +15,88 @@ function jsonParse(json, fallback) {
 }
 
 //Profile set up
-export function getProfile(userName) {
-    return jsonParse(localStorage.getItem(key(PROFILE_PREFIX, userName)), { displayName: '' });
+export async function getProfile() {
+  const res = await fetch('/api/account', {
+    credentials: 'include',
+  });
+
+  if (!res.ok) {
+    throw new Error('Could not load account profile.');
+  }
+
+  return await res.json();
 }
 
-export function setProfile(userName, profile) {
-    localStorage.setItem(key(PROFILE_PREFIX, userName), JSON.stringify(profile));
+export async function setProfile(profile) {
+  const res = await fetch('/api/account', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      displayName: profile.displayName ?? '',
+    }),
+  });
+    const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { ok: false, error: data.msg || 'Could not save profile.' };
+  }
+  return { ok: true, profile: data };
 }
 
-export function clearProfile(userName) {
-    localStorage.removeItem(key(PROFILE_PREFIX, userName));
+export async function clearProfile() {
+  const res = await fetch('/api/account', {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok && res.status !== 204) {
+    throw new Error('Could not delete account.');
+  }
+  return { ok: true };
 }
+
 
 //cars set up
-export function listCars(userName) {
-    const raw = localStorage.getItem(key(CARS_PREFIX, userName));
-    const cars = jsonParse(raw, []);
-    return Array.isArray(cars) ? cars : [];
+export async function listCars() {
+  const res = await fetch('/api/vehicles', {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('Could not load vehicles.');
+  }
+  return await res.json();
 }
 
 export function saveCars(userName, cars) {
     localStorage.setItem(key(CARS_PREFIX, userName), JSON.stringify(cars));
 }
 
-export function addCar(userName, car) {
-    const cars = listCars(userName);
-    const dup = cars.some((c) =>
-        (c.vinLast4 && car.vinLast4 && c.vinLast4 === car.vinLast4) &&
-        (c.nickname || '').toLowerCase() === (car.nickname || '').toLowerCase()
-    );
-    if (dup) return { ok: false, error: 'That car already exists for this account.' };
-
-    cars.push(car);
-    saveCars(userName, cars);
-    return { ok: true };
+export async function addCar(car) {
+  const res = await fetch('/api/vehicles', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(car),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { ok: false, error: data.msg || 'Could not add car.' };
+  }
+  return { ok: true, car: data };
 }
 
-export function removeCar(userName, carId) {
-    const cars = listCars(userName);
-    const next = cars.filter((c) => c.id !== carId);
-    saveCars(userName, next);
-    return next.length !== cars.length;
+export async function removeCar(carId) {
+  const res = await fetch(`/api/vehicles/${carId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({}));
+    return { ok: false, error: data.msg || 'Could not remove car.' };
+  }
+  return { ok: true };
 }
 
-export function clearCars(userName) {
-    localStorage.removeItem(key(CARS_PREFIX, userName));
+export async function clearCars() {
+  // no separate API endpoint needed because deleting the account clears vehicles
+  return { ok: true };
 }
