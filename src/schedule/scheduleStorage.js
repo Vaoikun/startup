@@ -21,11 +21,14 @@ export function saveAppointments(userName, appts) {
     localStorage.setItem(keyForUser(userName), JSON.stringify(appts))
 }
 
-export function listAppointments(userName) {
-    const raw = localStorage.getItem(keyForUser(userName));
-    const appts = jsonParse(raw, []);
-    // Ensure consistent shape
-    return Array.isArray(appts) ? appts : [];
+export async function listAppointments() {
+  const res = await fetch('/api/appointments', {
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('Could not load appointments.');
+  }
+  return await res.json();
 }
 
 export function addAppointment(userName, appt) {
