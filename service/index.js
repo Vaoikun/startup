@@ -1,7 +1,7 @@
 const cookieParser = require('cookie-parser');
 const bcrypt = require('bcryptjs');
 const express = require('express');
-const uuid = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const app = express();
 const authCookieName = 'token';
@@ -25,46 +25,51 @@ app.use(`/api`, apiRouter);
 
 // CreateAuth a new user account
 apiRouter.post('/auth/create', async (req, res) => {
-  const userName = (req.body.email || req.body.userName || '').trim();
-  const password = req.body.password || '';
-  
-  if (!userName || !password) {
-    return res.status(400).send({ msg: 'Missing email or password' });
+  try {
+    const email = (req.body.email || '').trim();
+    const password = req.body.password || '';
+    if (!email || !password) {
+      return res.status(400).send({ msg: 'Email and password required' });
+    }
+    if (await findUser('email', email)) {
+      return res.status(409).send({ msg: 'Existing user' });
+    }
+    const user = await createUser(email, password);
+    setAuthCookie(res, user.token);
+    res.send({
+      userName: user.userName,
+      email: user.email,
+      displayName: user.displayName,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  if (await findUser('userName', userName)) {
-    return res.status(409).send({ msg: 'Existing user' });
-  }
-  const user = await createUser(userName, password);
-  setAuthCookie(res, user.token);
-  res.send({ 
-    userName: user.userName,
-    email: user.email,
-    displayName: user.displayName,
-   });
 });
 
 // GetAuth login an existing user
 apiRouter.post('/auth/login', async (req, res) => {
-  const userName = (req.body.email || req.body.userName || '').trim();
-  const password = req.body.password || '';
-
-  if (!userName || !password) {
-    return res.status(400).send({msg: 'Username(email) and password requested'});
+  try {
+    const email = (req.body.email || '').trim();
+    const password = req.body.password || '';
+    if (!email || !password) {
+      return res.status(400).send({ msg: 'Email and password required' });
+    }
+    const user = await findUser('email', email);
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).send({ msg: 'Invalid email or password' });
+    }
+    user.token = uuid.v4();
+    setAuthCookie(res, user.token);
+    res.send({
+      userName: user.userName,
+      email: user.email,
+      displayName: user.displayName,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-  const user = await findUser('userName', userName);
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).send({msg: 'Invalid username(email) or password'});
-  }
-
-  user.token = uuid.v4();
-  setAuthCookie(res, user.token);
-
-  res.send({
-    userName: user.userName,
-    email: user.email,
-    displayName: user.displayName,
-  });
 });
 
 // Middleware to verify that the user is authorized to call an endpoint
@@ -144,7 +149,7 @@ apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
   }
 
   const vehicle = {
-    id: uuid.v4(),
+    id: uuidv4(),
     userId: req.user.id,
     userName: req.user.userName,
     nickname,
@@ -222,7 +227,7 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
   }
 
   const appt = {
-    id: uuid.v4(),
+    id: uuidv4(),
     userName: req.user.userName,
     userId: req.user.id,
     vehicleId: linkedVehicleId,
@@ -272,12 +277,12 @@ app.use((err, req, res, next) => {
 // Create a new user account
 async function createUser(email, password) {
   const user = {
-    id: uuid.v4(),
-    userName,
-    email: userName,
+    id: uuidv4(),
+    userName: email,
+    email,
     displayName: '',
     password: await bcrypt.hash(password, 10),
-    token: uuid.v4(),
+    token: uuidv4(),
     createdAt: new Date().toISOString(),
   };
   users.push(user);
