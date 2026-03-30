@@ -66,9 +66,9 @@ export async function listCars() {
   return await res.json();
 }
 
-export function saveCars(userName, cars) {
-    localStorage.setItem(key(CARS_PREFIX, userName), JSON.stringify(cars));
-}
+// export function saveCars(userName, cars) {
+//     localStorage.setItem(key(CARS_PREFIX, userName), JSON.stringify(cars));
+// }
 
 export async function addCar(car) {
   const res = await fetch('/api/vehicles', {

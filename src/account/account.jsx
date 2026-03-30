@@ -14,21 +14,48 @@ function newId() {
 export function Account({ userName: userNameProp, onAuthChange }) {
     const navigate = useNavigate();
     const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
-    const [profile, setProfileState] = React.useState(() => getProfile(userName));
+    const [profile, setProfileState] = React.useState({ userName, displayName: '' });
     const [editing, setEditing] = React.useState(false);
-    const [displayNameDraft, setDisplayNameDraft] = React.useState(profile.displayName || '');
-    const [appts, setAppts] = React.useState(() => listAppointments(userName));
-    const [cars, setCars] = React.useState(() => listCars(userName));
+    const [displayNameDraft, setDisplayNameDraft] = React.useState('');
+    const [appts, setAppts] = React.useState([]);
+    const [cars, setCars] = React.useState([]);
     const [carsMsg, setCarsMsg] = React.useState('');
+    const [loading, setLoading] = React.useState(true);
+
+    async function refreshAll() {
+        try {
+        setLoading(true);
+        const [profileData, apptData, carData] = await Promise.all([
+            getProfile(),
+            listAppointments(),
+            listCars(),
+        ]);
+
+        setProfileState(profileData);
+        setDisplayNameDraft(profileData.displayName || '');
+        setAppts(apptData);
+        setCars(carData);
+        } catch (err) {
+        console.error(err);
+        } finally {
+        setLoading(false);
+        }
+    }
 
     React.useEffect(() => {
-        setProfileState(getProfile(userName));
-        setDisplayNameDraft(getProfile(userName).displayName || '');
-        setAppts(listAppointments(userName));
-        setCars(listCars(userName));
+        if (!userName) return;
+        refreshAll();
     }, [userName]);
 
-    function logout() {
+    async function logout() {
+        try {
+            await fetch('/api/auth/logout', {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+        } catch (err) {
+            console.error(err);
+        }
         localStorage.removeItem('userName');
         if (onAuthChange) onAuthChange('', AuthState.Unauthenticated);
         navigate('/');
@@ -39,10 +66,15 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         setDisplayNameDraft(profile.displayName || '');
     }
 
-    function saveEdit() {
-        const next = { ...profile, displayName: (displayNameDraft || '').trim() };
-        setProfile(userName, next);
-        setProfileState(next);
+    async function saveEdit() {
+        const res = await setProfile({
+            ...profile,
+            displayName: (displayNameDraft || '').trim(),
+        });
+        if (!res.ok) {
+            return;
+        }
+        setProfileState(res.profile);
         setEditing(false);
     }
 
@@ -51,35 +83,36 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         setDisplayNameDraft(profile.displayName || '');
     }
 
-    function delAccount(){
-        clearAppointments(userName);
-        clearCars(userName);
-        clearProfile(userName);
-
+    async function delAccount(){
+        try {
+            await clearProfile();
+        } catch (err) {
+            console.error(err);
+        }
         localStorage.removeItem('userName');
         if (onAuthChange) onAuthChange('', AuthState.Unauthenticated);
         navigate('/');
     }
 
-    function cancelAppt(apptId) {
-        removeAppointment(userName, apptId);
-        setAppts(listAppointments(userName));
+    async function cancelAppt(apptId) {
+        const res = await removeAppointment(userName, apptId);
+        if (!res.ok) return;
+        setAppts(await listAppointments());
     }
 
-    function submitCar(e) {
+    async function submitCar(e) {
         e.preventDefault();
         setCarsMsg('');
 
         const fd = new FormData(e.target);
         const car = {
-        id: newId(),
-        nickname: (fd.get('nickname') || '').toString().trim(),
-        year: (fd.get('year') || '').toString().trim(),
-        make: (fd.get('make') || '').toString().trim(),
-        model: (fd.get('model') || '').toString().trim(),
-        trim: (fd.get('trim') || '').toString().trim(),
-        vinLast4: (fd.get('vinLast4') || '').toString().trim(),
-        createdAt: new Date().toISOString(),
+            nickname: (fd.get('nickname') || '').toString().trim(),
+            year: (fd.get('year') || '').toString().trim(),
+            make: (fd.get('make') || '').toString().trim(),
+            model: (fd.get('model') || '').toString().trim(),
+            trim: (fd.get('trim') || '').toString().trim(),
+            vinLast4: (fd.get('vinLast4') || '').toString().trim(),
+            createdAt: new Date().toISOString(),
         };
 
         if (!car.nickname || !car.year || !car.make || !car.model) {
@@ -91,154 +124,166 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         return;
         }
 
-        const res = addCar(userName, car);
+        const res = await addCar(userName, car);
         if (!res.ok) {
         setCarsMsg(res.error || 'Could not add car.');
         return;
         }
 
-        setCars(listCars(userName));
+        setCars(await listCars());
         e.target.reset();
         setCarsMsg('Car added!');
     }
 
-    function deleteCar(carId) {
-        removeCar(userName, carId);
-        setCars(listCars(userName));
+    async function deleteCar(carId) {
+        const res = await removeCar(carId);
+        if (!res.ok) return;
+        setCars(await listCars());
+    }
+
+    if (loading) {
+        return <main className="accountPage"><p>Loading account...</p></main>;
     }
 
   return (
     <main className="accountPage">
-            <h1>User Account</h1>
-            <p>Welcome to your garage.</p>
+      <h1>User Account</h1>
+      <p>Welcome to your garage.</p>
 
-            <section className="grid">
-                 <div className="card" aria-labelledby="acctInfoTitle">
-                    <h2 id="acctInfoTitle">Account Info</h2>
-                    <div className="kv" id="acctInfo">
-                        <div className="k">Username</div>
-                        <div className="v">{userName}</div>
+      <section className="grid">
+        <div className="card" aria-labelledby="acctInfoTitle">
+          <h2 id="acctInfoTitle">Account Info</h2>
+          <div className="kv" id="acctInfo">
+            <div className="k">Username</div>
+            <div className="v">{profile.userName || userName}</div>
+          </div>
+
+          <div className="kv-row">
+            <div className="k">Display name</div>
+            <div className="v">
+              {editing ? (
+                <input
+                  className="inlineInput"
+                  value={displayNameDraft}
+                  onChange={(e) => setDisplayNameDraft(e.target.value)}
+                  placeholder="Optional"
+                />
+              ) : (
+                profile.displayName || <span className="muted">Not set</span>
+              )}
+            </div>
+          </div>
+
+          <div className="actions">
+            {!editing ? (
+              <Button variant="secondary" onClick={editAccount}>Edit</Button>
+            ) : (
+              <>
+                <Button variant="primary" onClick={saveEdit}>Save</Button>
+                <Button variant="secondary" onClick={cancelEdit}>Cancel</Button>
+              </>
+            )}
+            <Button variant="outline-light" onClick={logout}>Log out</Button>
+            <Button variant="danger" onClick={delAccount}>Delete Account</Button>
+          </div>
+        </div>
+
+        <div className="card" aria-labelledby="apptListTitle">
+          <h2 id="apptListTitle">Appointments</h2>
+          {appts.length === 0 ? (
+            <p className="muted">No upcoming appointments.</p>
+          ) : (
+            <ul className="list">
+              {appts
+                .slice()
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+                .map((a) => (
+                  <li key={a.id} className="item">
+                    <div>
+                      <div className="itemLine">
+                        <strong>{a.date}</strong> at <strong>{a.time}</strong>
+                      </div>
+                      <div className="itemSub">{a.service}</div>
                     </div>
-
-                    <div className="kv-row">
-                    <div className="k">Display name</div>
-                    <div className="v">
-                        {editing ? (
-                        <input
-                            className="inlineInput"
-                            value={displayNameDraft}
-                            onChange={(e) => setDisplayNameDraft(e.target.value)}
-                            placeholder="Optional"
-                        />
-                        ) : (
-                        (profile.displayName || <span className="muted">Not set</span>)
-                        )}
-                    </div>
-                </div>
-
-                <div className="actions">
-                    {!editing ? (
-                        <Button variant='secondary' onClick={() => editAccount()}>
-                            Edit
-                        </Button>
-                    ) : (
-                        <>
-                        <Button variant="primary" onClick={saveEdit}>Save</Button>
-                        <Button variant="secondary" onClick={cancelEdit}>Cancel</Button>
-                        </>
-                    )}
-                    <Button variant="outline-light" onClick={logout}>Log out</Button>
-                    <Button variant="danger" onClick={delAccount}>Delete Account</Button>
-                </div>
-                </div> 
-
-                <div className="card" aria-labelledby="apptListTitle">
-                    <h2 id="apptListTitle">Appointments</h2>
-                    {appts.length === 0 ? (
-                        <p className="muted">No upcoming appointments.</p>
-                    ) : (
-                        <ul className="list">
-                        {appts
-                            .slice()
-                            .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-                            .map((a) => (
-                            <li key={a.id} className="item">
-                                <div>
-                                <div className="itemLine">
-                                    <strong>{a.date}</strong> at <strong>{a.time}</strong>
-                                </div>
-                                <div className="itemSub">{a.service}</div>
-                                </div>
-                                <Button variant="outline-danger" size="sm" onClick={() => cancelAppt(a.id)}>
-                                Cancel
-                                </Button>
-                            </li>
-                            ))}
-                        </ul>
-                    )}
-
-                    <Button variant='primary' onClick={() => navigate('/schedule')}>
-                        Make Appointments
+                    <Button
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => cancelAppt(a.id)}
+                    >
+                      Cancel
                     </Button>
-                </div>
-                <div className="card" aria-labelledby="vehListTitle">
-                    <h2 id="vehListTitle">Vehicles</h2>
-                    {cars.length === 0 ? (
-                        <p className="muted">No vehicles yet.</p>
-                    ) : (
-                        <div className="tableWrap">
-                        <table aria-label="Linked cars table" className="carsTable">
-                            <thead>
-                            <tr>
-                                <th>Nickname</th>
-                                <th>Year</th>
-                                <th>Make</th>
-                                <th>Model</th>
-                                <th>Trim</th>
-                                <th>VIN (last 4)</th>
-                                <th></th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {cars.map((c) => (
-                                <tr key={c.id}>
-                                <td>{c.nickname}</td>
-                                <td>{c.year}</td>
-                                <td>{c.make}</td>
-                                <td>{c.model}</td>
-                                <td>{c.trim || '-'}</td>
-                                <td>{c.vinLast4 || '-'}</td>
-                                <td className="right">
-                                    <Button variant="outline-danger" size="sm" onClick={() => deleteCar(c.id)}>
-                                    Remove
-                                    </Button>
-                                </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                        </div>
-                    )}
+                  </li>
+                ))}
+            </ul>
+          )}
 
-                    <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
-                    <form id="addCarForm" onSubmit={submitCar}>
-                        <div className="actions">
-                        <input name="nickname" placeholder="Nickname (e.g., Daily)" required />
-                        <input name="year" placeholder="Year" inputMode="numeric" required />
-                        <input name="make" placeholder="Make" required />
-                        <input name="model" placeholder="Model" required />
-                        <input name="trim" placeholder="Trim (optional)" />
-                        <input name="vinLast4" placeholder="VIN last 4" maxLength={4} />
-                        </div>
+          <Button variant="primary" onClick={() => navigate('/schedule')}>
+            Make Appointments
+          </Button>
+        </div>
 
-                        <div className='actions' style={{marginTop: 10}}>
-                            <Button type='submit' variant='primary'>Add Car</Button>
-                        </div>
-                    </form>
+        <div className="card" aria-labelledby="vehListTitle">
+          <h2 id="vehListTitle">Vehicles</h2>
+          {cars.length === 0 ? (
+            <p className="muted">No vehicles yet.</p>
+          ) : (
+            <div className="tableWrap">
+              <table aria-label="Linked cars table" className="carsTable">
+                <thead>
+                  <tr>
+                    <th>Nickname</th>
+                    <th>Year</th>
+                    <th>Make</th>
+                    <th>Model</th>
+                    <th>Trim</th>
+                    <th>VIN (last 4)</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cars.map((c) => (
+                    <tr key={c.id}>
+                      <td>{c.nickname}</td>
+                      <td>{c.year}</td>
+                      <td>{c.make}</td>
+                      <td>{c.model}</td>
+                      <td>{c.trim || '-'}</td>
+                      <td>{c.vinLast4 || '-'}</td>
+                      <td className="right">
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => deleteCar(c.id)}
+                        >
+                          Remove
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
-                    <p id="carsMsg" role="status" aria-live="polite" className="msg">{carsMsg}</p>
-                </div>
-            </section>
-        </main>
+          <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
+          <form id="addCarForm" onSubmit={submitCar}>
+            <div className="actions">
+              <input name="nickname" placeholder="Nickname (e.g., Daily)" required />
+              <input name="year" placeholder="Year" inputMode="numeric" required />
+              <input name="make" placeholder="Make" required />
+              <input name="model" placeholder="Model" required />
+              <input name="trim" placeholder="Trim (optional)" />
+              <input name="vinLast4" placeholder="VIN last 4" maxLength={4} />
+            </div>
+
+            <div className="actions" style={{ marginTop: 10 }}>
+              <Button type="submit" variant="primary">Add Car</Button>
+            </div>
+          </form>
+
+          <p id="carsMsg" role="status" aria-live="polite" className="msg">{carsMsg}</p>
+        </div>
+      </section>
+    </main>
   );
 }

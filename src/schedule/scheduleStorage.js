@@ -17,9 +17,9 @@ function jsonParse(json, fallback) {
 }
 
 //Appointment set up
-export function saveAppointments(userName, appts) {
-    localStorage.setItem(keyForUser(userName), JSON.stringify(appts))
-}
+// export function saveAppointments(userName, appts) {
+//     localStorage.setItem(keyForUser(userName), JSON.stringify(appts))
+// }
 
 export async function listAppointments() {
   const res = await fetch('/api/appointments', {
@@ -31,28 +31,46 @@ export async function listAppointments() {
   return await res.json();
 }
 
-export function addAppointment(userName, appt) {
-    const appts = listAppointments(userName);
-
-    // Prevent duplicates
-    const dup = appts.some(
-        (a) => a.date === appt.date && a.time === appt.time
-    );
-    if (dup) {
-        return { ok: false, error: 'That time slot is already booked for this account.' };
-    }
-    appts.push(appt);
-    saveAppointments(userName, appts);
-    return { ok: true };
+export async function addAppointment(_userName, appt) {
+  const res = await fetch('/api/appointments', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      date: appt.date,
+      time: appt.time,
+      service: appt.service,
+      vehicleId: appt.vehicleId || '',
+    }),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    return { ok: false, error: data.msg || 'Could not schedule appointment.' };
+  }
+  return { ok: true, appointment: data };
 }
 
-export function removeAppointment(userName, apptId) {
-    const appts = listAppointments(userName);
-    const next = appts.filter((a) => a.id !== apptId);
-    saveAppointments(userName, next);
-    return next.length !== appts.length;
+export async function removeAppointment(_userName, apptId) {
+  const res = await fetch(`/api/appointments/${apptId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+  if (!res.ok && res.status !== 204) {
+    const data = await res.json().catch(() => ({}));
+    return { ok: false, error: data.msg || 'Could not cancel appointment.' };
+  }
+  return { ok: true };
 }
 
-export function clearAppointments(userName) {
-    localStorage.removeItem(keyForUser(userName));
+export async function clearAppointments() {
+  const appts = await listAppointments();
+  await Promise.all(
+    appts.map((a) =>
+      fetch(`/api/appointments/${a.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+    )
+  );
+  return { ok: true };
 }
