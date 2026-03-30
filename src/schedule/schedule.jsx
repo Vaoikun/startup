@@ -37,11 +37,25 @@ export function Schedule({ userName }) {
     const [time, setTime] = React.useState('');
     const [service, setService] = React.useState('');
     const [message, setMessage] = React.useState('');
-    const [appts, setAppts] = React.useState(() => listAppointments(userName));
+    const [appts, setAppts] = React.useState([]);
+
+    async function refreshAppointments() {
+        if (!userName) {
+            setAppts([]);
+            return;
+        }
+        try {
+            const items = await listAppointments();
+            setAppts(items);
+        } catch (err) {
+            console.error(err);
+            setMessage('Could not load appointments.');
+        }
+    }
 
     // Continuous update
     React.useEffect(() => {
-        setAppts(listAppointments(userName));
+        refreshAppointments();
     }, [userName]);
 
     const onSelectSlot = (slotValue) => {
@@ -56,10 +70,9 @@ export function Schedule({ userName }) {
         setMessage('');
     };
 
-    const onSubmit = (e) => {
+    const onSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
-
         if (!userName) {
             setMessage('Authentication Error.');
             return;
@@ -78,7 +91,6 @@ export function Schedule({ userName }) {
         }
 
         const appt = {
-            id: newId(),
             userName,
             date,     // "YYYY-MM-DD"
             time,     // "HH:MM"
@@ -86,23 +98,26 @@ export function Schedule({ userName }) {
             createdAt: new Date().toISOString(),
         };
 
-        const res = addAppointment(userName, appt);
-            if (!res.ok) {
+        const res = await addAppointment(userName, appt);
+        if (!res.ok) {
             setMessage(res.error || 'Could not schedule appointment.');
             return;
         }
 
-        setAppts(listAppointments(userName));
+        await refreshAppointments();
         setMessage('Appointment scheduled!');
         setTime('');
     };
 
-    const onCancel = (apptId) => {
-        removeAppointment(userName, apptId);
-        setAppts(listAppointments(userName));
+    const onCancel = async (apptId) => {
+        const res = await removeAppointment(userName, apptId);
+        if (!res.ok) {
+            setMessage(res.error || 'Could not cancel appointment.');
+            return;
+        }
+        await refreshAppointments();
         setMessage('Appointment cancelled.');
     };
-
     const bookedTimesForSelectedDate = React.useMemo(() => {
         if (!date) return new Set();
         return new Set(appts.filter((a) => a.date === date).map((a) => a.time));
@@ -110,105 +125,113 @@ export function Schedule({ userName }) {
 
   return (
     <main className="schedule">
-        <p className="note">Pick a date, choose a time slot, then submit.</p>
+      <p className="note">Pick a date, choose a time slot, then submit.</p>
 
-        {!userName && (
-            <div className="banner" role="status">
-            You are not logged in yet. Appointment will be saved once you log in.
-            </div>
-        )}
+      {!userName && (
+        <div className="banner" role="status">
+          You are not logged in yet. Appointment will be saved once you log in.
+        </div>
+      )}
 
-        <form id="apptForm" onSubmit={onSubmit} onReset={onClear}>
-            <div className="row">
-            <label htmlFor="apptDate"><strong>Date:</strong></label>
-            <input
+      <form id="apptForm" onSubmit={onSubmit} onReset={onClear}>
+        <div className="row">
+          <label htmlFor="apptDate"><strong>Date:</strong></label>
+          <input
             id="apptDate"
             name="date"
             type="date"
             value={date}
-            onChange={(e) => {setDate(e.target.value); setMessage('');}}
+            onChange={(e) => {
+              setDate(e.target.value);
+              setMessage('');
+            }}
             required
-            />
-            </div>
-            <div className="row">
-            <strong>Time slot:</strong>
-            <div className="slots" id="slots">
-                {SLOTS.map((s) => {
-                    const selected = time === s.value;
-                    const booked = date && bookedTimesForSelectedDate.has(s.value);
+          />
+        </div>
 
-                    return (
-                        <button
-                        key={s.value}
-                        className={`slot ${selected ? 'selected' : ''}`}
-                        type="button"
-                        aria-pressed={selected}
-                        disabled={booked}
-                        title={booked ? 'Already booked for this account' : 'Select this time'}
-                        onClick={() => {onSelectSlot(s.value);}}
-                        >
-                        {s.label}
-                        </button>
-                    );
-                })}
-            </div>
+        <div className="row">
+          <strong>Time slot:</strong>
+          <div className="slots" id="slots">
+            {SLOTS.map((s) => {
+              const selected = time === s.value;
+              const booked = date && bookedTimesForSelectedDate.has(s.value);
 
-            <input type="hidden" id="apptTime" name="time" value={time} required />
-                {time && <div className="picked">Selected: <strong>{time}</strong></div>}
-            </div>
-
-            <div className="row">
-                <label htmlFor="service"><strong>Service:</strong></label>
-                <select
-                    id="service"
-                    name="service"
-                    value={service}
-                    onChange={(e) => {setService(e.target.value); setMessage('');}}
-                    required
+              return (
+                <button
+                  key={s.value}
+                  className={`slot ${selected ? 'selected' : ''}`}
+                  type="button"
+                  aria-pressed={selected}
+                  disabled={booked}
+                  title={booked ? 'Already booked for this account' : 'Select this time'}
+                  onClick={() => onSelectSlot(s.value)}
                 >
-                    {SERVICES.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                    ))}
-                </select>
-            </div>
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
 
-            <div className="actions">
-            <button type="submit">Schedule appointment</button>
-            <button type="reset">Clear</button>
-            </div>
-        </form>
+          <input type="hidden" id="apptTime" name="time" value={time} required />
+          {time && <div className="picked">Selected: <strong>{time}</strong></div>}
+        </div>
 
-        <p id="result" role="status" aria-live="polite">{message}</p>
+        <div className="row">
+          <label htmlFor="service"><strong>Service:</strong></label>
+          <select
+            id="service"
+            name="service"
+            value={service}
+            onChange={(e) => {
+              setService(e.target.value);
+              setMessage('');
+            }}
+            required
+          >
+            {SERVICES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <section className="apptList" aria-labelledby="apptListTitle">
-            <h2 id="apptListTitle">Your Appointments</h2>
+        <div className="actions">
+          <button type="submit">Schedule appointment</button>
+          <button type="reset">Clear</button>
+        </div>
+      </form>
 
-            {userName && appts.length === 0 && (
-            <p className="muted">No appointments yet.</p>
-            )}
+      <p id="result" role="status" aria-live="polite">{message}</p>
 
-            {userName && appts.length > 0 && (
-            <ul className="list">
-                {appts
-                .slice()
-                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
-                .map((a) => (
-                    <li key={a.id} className="item">
-                    <div className="itemMain">
-                        <div className="itemLine">
-                        <strong>{a.date}</strong> at <strong>{a.time}</strong>
-                        </div>
-                        <div className="itemSub">{formatService(a.service)}</div>
+      <section className="apptList" aria-labelledby="apptListTitle">
+        <h2 id="apptListTitle">Your Appointments</h2>
+
+        {userName && appts.length === 0 && (
+          <p className="muted">No appointments yet.</p>
+        )}
+
+        {userName && appts.length > 0 && (
+          <ul className="list">
+            {appts
+              .slice()
+              .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+              .map((a) => (
+                <li key={a.id} className="item">
+                  <div className="itemMain">
+                    <div className="itemLine">
+                      <strong>{a.date}</strong> at <strong>{a.time}</strong>
                     </div>
-                    <button className="danger" type="button" onClick={() => onCancel(a.id)}>
-                        Cancel
-                    </button>
-                    </li>
-                ))}
-            </ul>
-            )}
-        </section>
-
-        </main>
+                    <div className="itemSub">{formatService(a.service)}</div>
+                  </div>
+                  <button className="danger" type="button" onClick={() => onCancel(a.id)}>
+                    Cancel
+                  </button>
+                </li>
+              ))}
+          </ul>
+        )}
+      </section>
+    </main>
   );
 }
