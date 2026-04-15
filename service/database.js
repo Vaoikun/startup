@@ -40,6 +40,20 @@ async function removeUserToken(email) {
 }
 
 // Vehicle functions
+async function addVehicle(vehicle) {
+  return vehicleCollection.insertOne(vehicle);
+}
+
+function getVehiclesByUser(email) {
+  return vehicleCollection.find({ ownerEmail: email }).toArray();
+}
+
+async function deleteVehicle(vehicleId) {
+  const { ObjectId } = require('mongodb');
+  return vehicleCollection.deleteOne({ _id: new ObjectId(vehicleId) });
+}
+
+// Appointment functions
 
 module.exports = {
   getUser,
@@ -47,6 +61,7 @@ module.exports = {
   addUser,
   updateUser,
   removeUserToken,
-  addScore,
-  getHighScores,
+  addVehicle,
+  getVehiclesByUser,
+  deleteVehicle,
 };
