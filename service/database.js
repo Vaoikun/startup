@@ -54,6 +54,28 @@ async function deleteVehicle(vehicleId) {
 }
 
 // Appointment functions
+async function addAppointment(appointment) {
+  return appointmentCollection.insertOne(appointment);
+}
+
+function getAppointmentsByUser(email) {
+  return appointmentCollection
+    .find({ userEmail: email })
+    .sort({ date: 1 })
+    .toArray();
+}
+
+function getAllAppointments() {
+  return appointmentCollection
+    .find({})
+    .sort({ date: 1 })
+    .toArray();
+}
+
+async function deleteAppointment(appointmentId) {
+  const { ObjectId } = require('mongodb');
+  return appointmentCollection.deleteOne({ _id: new ObjectId(appointmentId) });
+}
 
 module.exports = {
   getUser,
@@ -64,4 +86,8 @@ module.exports = {
   addVehicle,
   getVehiclesByUser,
   deleteVehicle,
+  addAppointment,
+  getAppointmentsByUser,
+  getAllAppointments,
+  deleteAppointment
 };
