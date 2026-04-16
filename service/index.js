@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const app = express();
 const authCookieName = 'token';
-const multer = require('multer');
+// const multer = require('multer');
 const DB = require('./database');
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
@@ -21,34 +21,34 @@ app.use(express.static('public'));
 var apiRouter = express.Router();
 app.use(`/api`, apiRouter);
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + path.extname(file.originalname));
-  },
-});
+// // Configure multer for file uploads
+// const storage = multer.diskStorage({
+//   destination: 'uploads/',
+//   filename: (req, file, cb) => {
+//     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+//     cb(null, unique + path.extname(file.originalname));
+//   },
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
-app.post('/api/upload/car-photo', upload.single('photo'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).send({ msg: 'No file uploaded' });
-    }
+// app.post('/api/upload/car-photo', upload.single('photo'), async (req, res) => {
+//   try {
+//     if (!req.file) {
+//       return res.status(400).send({ msg: 'No file uploaded' });
+//     }
 
-    res.send({
-      msg: 'Upload successful',
-      fileName: req.file.filename,
-      filePath: `/uploads/${req.file.filename}`,
-    });
-  } catch (err) {
-    res.status(500).send({ msg: 'Upload failed' });
-  }
-});
+//     res.send({
+//       msg: 'Upload successful',
+//       fileName: req.file.filename,
+//       filePath: `/uploads/${req.file.filename}`,
+//     });
+//   } catch (err) {
+//     res.status(500).send({ msg: 'Upload failed' });
+//   }
+// });
 
-app.use('/uploads', express.static('uploads'));
+// app.use('/uploads', express.static('uploads'));
 
 // CreateAuth a new user account
 apiRouter.post('/auth/create', async (req, res) => {
