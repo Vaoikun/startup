@@ -9,10 +9,11 @@ const authCookieName = 'token';
 const DB = require('./database');
 const http = require('http');
 const { peerProxy } = require('./peerProxy');
+const { WebSocket } = require('ws');
 
 // Create the HTTP server and attach the peer proxy to it
 const httpServer = http.createServer(app);
-peerProxy(httpServer);
+const socketServer = peerProxy(httpServer);
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
@@ -218,55 +219,75 @@ apiRouter.get('/appointments', verifyAuth, async (req, res) => {
 
 // Add an appointment to the current user's account
 apiRouter.post('/appointments', verifyAuth, async (req, res) => {
-  const date = (req.body.date || '').trim();
-  const time = (req.body.time || '').trim();
-  const service = (req.body.service || '').trim();
-  const vehicleId = (req.body.vehicleId || '').trim();
+  try {
+    const date = (req.body.date || '').trim();
+    const time = (req.body.time || '').trim();
+    const service = (req.body.service || '').trim();
+    const vehicleId = (req.body.vehicleId || '').trim();
 
-  if (!date) {
-    return res.status(400).send({ msg: 'Pick a date.'});
-  }
-  if (!time) {
-    return res.status(400).send({ msg: 'Pick a time slot.'});
-  }
-  if (!service) {
-    return res.status(400).send({ msg: 'Select a service.'});
-  }
-
-  const validServices = ['tune', 'inspect', 'diagnostic', 'consult'];
-  if (!validServices.includes(service)) {
-    return res.status(400).send({msg:'Invalid service.'})
-  }
-  const existingAppointments = await DB.getAppointmentsByUser(req.user.email);
-  const duplicate = existingAppointments.some((a) => a.date === date && a.time === time);
-
-  if (duplicate) {
-    return res.status(409).send({
-      msg: 'Time slot taken already.'
-    });
-  }
-
-  let linkedVehicleId = '';
-  if (vehicleId) {
-    const userVehicles = await DB.getVehiclesByUser(req.user.email);
-    const vehicle = userVehicles.find((v) => String(v._id) === vehicleId);
-    if (!vehicle) {
-      return res.status(400).send({ msg: 'Invalid vehicleId.'});
+    if (!date) {
+      return res.status(400).send({ msg: 'Pick a date.' });
     }
-    linkedVehicleId = vehicleId;
+    if (!time) {
+      return res.status(400).send({ msg: 'Pick a time slot.' });
+    }
+    if (!service) {
+      return res.status(400).send({ msg: 'Select a service.' });
+    }
+
+    const validServices = ['tune', 'inspect', 'diagnostic', 'consult'];
+    if (!validServices.includes(service)) {
+      return res.status(400).send({ msg: 'Invalid service.' });
+    }
+
+    const existingAppointments = await DB.getAppointmentsByUser(req.user.email);
+    const duplicate = existingAppointments.some(
+      (a) => a.date === date && a.time === time
+    );
+
+    if (duplicate) {
+      return res.status(409).send({ msg: 'Time slot taken already.' });
+    }
+
+    let linkedVehicleId = '';
+    if (vehicleId) {
+      const userVehicles = await DB.getVehiclesByUser(req.user.email);
+      const vehicle = userVehicles.find((v) => String(v._id) === vehicleId);
+
+      if (!vehicle) {
+        return res.status(400).send({ msg: 'Invalid vehicleId.' });
+      }
+
+      linkedVehicleId = vehicleId;
+    }
+
+    const appt = {
+      userEmail: req.user.email,
+      vehicleId: linkedVehicleId,
+      date,
+      time,
+      service,
+      createdAt: new Date().toISOString(),
+    };
+
+    await DB.addAppointment(appt);
+
+    socketServer.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            type: 'appointment:created',
+            data: appt,
+          })
+        );
+      }
+    });
+
+    res.send(appt);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ msg: 'Failed to create appointment.' });
   }
-
-  const appt = {
-    userEmail: req.user.email,
-    vehicleId: linkedVehicleId,
-    date,
-    time,
-    service,
-    createdAt: new Date().toISOString(),
-  };
-
-  await DB.addAppointment(appt);
-  res.send(appt);
 });
 
 apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
@@ -298,11 +319,6 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Internal server error' });
 });
-
-socket.send(JSON.stringify({
-  type: 'appointment:created',
-  data: appt
-}));
 
 // Create a new user account
 // async function createUser(email, password) {
