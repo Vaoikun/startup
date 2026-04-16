@@ -96,6 +96,7 @@ apiRouter.post('/auth/login', async (req, res) => {
       return res.status(401).send({ msg: 'Invalid email or password' });
     }
     user.token = uuidv4();
+    await DB.updateUser(user);
     setAuthCookie(res, user.token);
     res.send({
       userName: user.userName,
@@ -139,7 +140,7 @@ apiRouter.get('/account', verifyAuth, async (req, res) => {
 apiRouter.put('/account', verifyAuth, async (req, res) => {
   const displayName = (req.body.displayName || '').trim();
   req.user.displayName = displayName;
-
+  await DB.updateUser(req.user);
   res.send({
     userName: req.user.userName,
     email: req.user.email,
@@ -150,17 +151,16 @@ apiRouter.put('/account', verifyAuth, async (req, res) => {
 apiRouter.delete('/account', verifyAuth, async (req, res) => {
   const userId = req.user.id;
   const userName = req.user.userName;
-  vehicles = vehicles.filter((v) => v.userId !== userId);
-  appointments = appointments.filter((a) => a.userName !== userName);
-  users = users.filter((u) => u.id !== userId);
-
+  await DB.deleteVehiclesByUser(req.user.email);
+  await DB.deleteAppointmentsByUser(req.user.email);
+  await DB.deleteUser(req.user.email);
   res.clearCookie(authCookieName);
   res.status(204).end();
 });
 
 // Get the current user's vehicles
 apiRouter.get('/vehicles', verifyAuth, async (req, res) => {
-  const userVehicles = await DB.getVehiclesByUserId(req.user.id);
+  const userVehicles = await DB.getVehiclesByUser(req.user.email);
   res.send(userVehicles);
 });
 
@@ -186,9 +186,7 @@ apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
   }
 
   const vehicle = {
-    id: uuidv4(),
-    userId: req.user.id,
-    userName: req.user.userName,
+    ownerEmail: req.user.email,
     nickname,
     year,
     make,
@@ -202,10 +200,9 @@ apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
 });
 
 apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) =>{
-  const before = vehicles.length;
-  await DB.deleteVehicle(req.params.id);
-  if (vehicles.length === before) {
-    return res.status(404).send({ msg: 'Vehicle not found.'});
+  const result = await DB.deleteVehicle(req.params.id);
+  if (result.deletedCount === 0) {
+    return res.status(404).send({ msg: 'Vehicle not found.' });
   }
   res.status(204).end();
 });
@@ -221,7 +218,7 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
   const date = (req.body.date || '').trim();
   const time = (req.body.time || '').trim();
   const service = (req.body.service || '').trim();
-  const vehicleId = (req.body.vehicleId || '').tirm();
+  const vehicleId = (req.body.vehicleId || '').trim();
 
   if (!date) {
     return res.status(400).send({ msg: 'Pick a date.'});
