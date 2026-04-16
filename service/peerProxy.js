@@ -6,9 +6,9 @@ function peerProxy(httpServer) {
     path: '/ws',
   });
 
-  socketServer.on('connection', (socket, req) => {
+  socketServer.on('connection', (socket) => {
     socket.isAlive = true;
-    console.log('WS connected:', req.socket.remoteAddress);
+    console.log('WS connected:', socket._socket.remoteAddress);
 
     socket.on('pong', () => {
       socket.isAlive = true;
