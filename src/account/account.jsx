@@ -6,11 +6,6 @@ import { AuthState } from '../login/authState';
 import { listAppointments, removeAppointment} from '../schedule/scheduleStorage';
 import { addCar, listCars, removeCar, getProfile, setProfile} from './accountStorage';
 
-function newId() {
-    return (globalThis.crypto?.randomUUID?.() ??
-        `id_${Date.now()}_${Math.random().toString(16).slice(2)}`);
-}
-
 export function Account({ userName: userNameProp, onAuthChange }) {
     const navigate = useNavigate();
     const userName = (userNameProp ?? localStorage.getItem('userName') ?? '').trim();
