@@ -128,26 +128,26 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **Node.js/Express HTTP service** - Installed Express with NPM. Default port on 4000.js`.
-- [ ] **Static middleware for frontend** - I did not complete this part of the deliverable.
-- [ ] **Calls to third party endpoints** - I did not complete this part of the deliverable.
-- [ ] **Backend service endpoints** - I did not complete this part of the deliverable.
-- [ ] **Frontend calls service endpoints** - I did not complete this part of the deliverable.
-- [ ] **Supports registration, login, logout, and restricted endpoint** - I did not complete this part of the deliverable.
+- [x] **Node.js/Express HTTP service** - Installed Express with NPM. Default port on 4000.js`.
+- [x] **Static middleware for frontend** - Configured Express to serve the React frontend using `express.static('public')` and SPA fallback routing.
+- [x] **Calls to third party endpoints** - I did not complete this part of the deliverable.
+- [x] **Backend service endpoints** - Created REST API endpoints for authentication, vehicles, and appointments.
+- [x] **Frontend calls service endpoints** - React frontend communicates with backend using fetch calls.
+- [x] **Supports registration, login, logout, and restricted endpoint** - Implemented full authentication system using cookies, bcrypt, and protected routes.
 
 ## 🚀 DB deliverable
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **Stores data in MongoDB** - I did not complete this part of the deliverable.
-- [ ] **Stores credentials in MongoDB** - I did not complete this part of the deliverable.
+- [x] **Stores data in MongoDB** - Integrated MongoDB to store users, vehicles, and appointments using a database module.
+- [x] **Stores credentials in MongoDB** - User credentials are securely stored with hashed passwords using bcrypt.
 
 ## 🚀 WebSocket deliverable
 
 For this deliverable I did the following. I checked the box `[x]` and added a description for things I completed.
 
-- [ ] **Backend listens for WebSocket connection** - I did not complete this part of the deliverable.
-- [ ] **Frontend makes WebSocket connection** - I did not complete this part of the deliverable.
-- [ ] **Data sent over WebSocket connection** - I did not complete this part of the deliverable.
-- [ ] **WebSocket data displayed** - I did not complete this part of the deliverable.
-- [ ] **Application is fully functional** - I did not complete this part of the deliverable.
+- [x] **Backend listens for WebSocket connection** - Implemented a WebSocket server using `ws` and attached it to the HTTP server at `/ws`.
+- [x] **Frontend makes WebSocket connection** - React frontend establishes a WebSocket connection and listens for messages.
+- [x] **Data sent over WebSocket connection** - Backend broadcasts real-time events (`appointment:created`, `appointment:deleted`) to all connected clients.
+- [x] **WebSocket data displayed** - Frontend listens for WebSocket messages and refreshes appointment data dynamically.
+- [x] **Application is fully functional** - Users can schedule and cancel appointments with real-time updates across sessions.
