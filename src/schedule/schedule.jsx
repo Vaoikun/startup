@@ -24,10 +24,6 @@ const SLOTS = [
   { value: '16:00', label: '4:00 PM' },
 ];
 
-function newId() {
-  return (globalThis.crypto?.randomUUID?.() ?? `appt_${Date.now()}_${Math.random().toString(16).slice(2)}`);
-}
-
 function formatService(value) {
   return SERVICES.find((s) => s.value === value)?.label ?? value;
 }
@@ -91,14 +87,13 @@ export function Schedule({ userName }) {
         }
 
         const appt = {
-            userName,
-            date,     // "YYYY-MM-DD"
-            time,     // "HH:MM"
-            service,
-            createdAt: new Date().toISOString(),
+          date,
+          time,
+          service,
+          createdAt: new Date().toISOString(),
         };
 
-        const res = await addAppointment(userName, appt);
+        const res = await addAppointment(appt);
         if (!res.ok) {
             setMessage(res.error || 'Could not schedule appointment.');
             return;
@@ -110,7 +105,7 @@ export function Schedule({ userName }) {
     };
 
     const onCancel = async (apptId) => {
-        const res = await removeAppointment(userName, apptId);
+        const res = await removeAppointment(apptId);
         if (!res.ok) {
             setMessage(res.error || 'Could not cancel appointment.');
             return;
@@ -224,7 +219,7 @@ export function Schedule({ userName }) {
                     </div>
                     <div className="itemSub">{formatService(a.service)}</div>
                   </div>
-                  <button className="danger" type="button" onClick={() => onCancel(a.id)}>
+                  <button className="danger" type="button" onClick={() => onCancel(a._id)}>
                     Cancel
                   </button>
                 </li>

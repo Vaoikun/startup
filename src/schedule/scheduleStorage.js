@@ -1,20 +1,20 @@
-// LocalStorage based appointment schedule tied to an account
+// // LocalStorage based appointment schedule tied to an account
 
-const KEY_PREFIX = 'kai:appts:';
+// const KEY_PREFIX = 'kai:appts:';
 
-function keyForUser(userName) {
-  const u = (userName || '').trim();
-  return `${KEY_PREFIX}${u || 'guest'}`;
-}
+// function keyForUser(userName) {
+//   const u = (userName || '').trim();
+//   return `${KEY_PREFIX}${u || 'guest'}`;
+// }
 
-function jsonParse(json, fallback) {
-  try {
-    const v = JSON.parse(json);
-    return v ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
+// function jsonParse(json, fallback) {
+//   try {
+//     const v = JSON.parse(json);
+//     return v ?? fallback;
+//   } catch {
+//     return fallback;
+//   }
+// }
 
 //Appointment set up
 // export function saveAppointments(userName, appts) {
@@ -31,7 +31,7 @@ export async function listAppointments() {
   return await res.json();
 }
 
-export async function addAppointment(_userName, appt) {
+export async function addAppointment(appt) {
   const res = await fetch('/api/appointments', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -50,7 +50,7 @@ export async function addAppointment(_userName, appt) {
   return { ok: true, appointment: data };
 }
 
-export async function removeAppointment(_userName, apptId) {
+export async function removeAppointment(apptId) {
   const res = await fetch(`/api/appointments/${apptId}`, {
     method: 'DELETE',
     credentials: 'include',
