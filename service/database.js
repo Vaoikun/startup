@@ -50,9 +50,11 @@ function getVehiclesByUser(email) {
   return vehicleCollection.find({ ownerEmail: email }).toArray();
 }
 
-async function deleteVehicle(vehicleId) {
-  const { ObjectId } = require('mongodb');
-  return vehicleCollection.deleteOne({ _id: new ObjectId(vehicleId) });
+async function deleteVehicle(vehicleId, email) {
+  return vehicleCollection.deleteOne({
+    _id: new ObjectId(vehicleId),
+    ownerEmail: email,
+  });
 }
 
 // Appointment functions
@@ -74,9 +76,11 @@ function getAllAppointments() {
     .toArray();
 }
 
-async function deleteAppointment(appointmentId) {
-  const { ObjectId } = require('mongodb');
-  return appointmentCollection.deleteOne({ _id: new ObjectId(appointmentId) });
+async function deleteAppointment(appointmentId, email) {
+  return appointmentCollection.deleteOne({
+    _id: new ObjectId(appointmentId),
+    userEmail: email,
+  });
 }
 
 // Account delte cleanup functions

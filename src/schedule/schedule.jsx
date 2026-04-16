@@ -102,6 +102,7 @@ export function Schedule({ userName }) {
         await refreshAppointments();
         setMessage('Appointment scheduled!');
         setTime('');
+        setService('');
     };
 
     const onCancel = async (apptId) => {

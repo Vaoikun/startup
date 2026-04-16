@@ -149,8 +149,6 @@ apiRouter.put('/account', verifyAuth, async (req, res) => {
 })
 
 apiRouter.delete('/account', verifyAuth, async (req, res) => {
-  const userId = req.user.id;
-  const userName = req.user.userName;
   await DB.deleteVehiclesByUser(req.user.email);
   await DB.deleteAppointmentsByUser(req.user.email);
   await DB.deleteUser(req.user.email);
@@ -321,7 +319,7 @@ function setAuthCookie(res, token) {
     res.cookie(authCookieName, token, {
     httpOnly: true,
     sameSite: 'strict',
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
   });
 }
 
