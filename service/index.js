@@ -310,6 +310,42 @@ apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
   res.status(204).end();
 });
 
+// Endpoint to decode a VIN using the NHTSA API
+apiRouter.get('/vehicle/decode-vin/:vin', verifyAuth, async (req, res) => {
+  try {
+    const vin = String(req.params.vin || '').trim().toUpperCase();
+
+    if (vin.length !== 17) {
+      return res.status(400).send({ msg: 'VIN must be 17 characters.' });
+    }
+
+    const response = await fetch(
+      `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`
+    );
+
+    if (!response.ok) {
+      return res.status(502).send({ msg: 'Failed to contact VIN service.' });
+    }
+
+    const body = await response.json();
+    const results = body.Results || [];
+
+    function getValue(name) {
+      return results.find((r) => r.Variable === name)?.Value || '';
+    }
+
+    res.send({
+      year: getValue('Model Year'),
+      make: getValue('Make'),
+      model: getValue('Model'),
+      trim: getValue('Trim'),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ msg: 'VIN decode failed.' });
+  }
+});
+
 // Return the application's default page if the path is unknown
 app.get('/service', (_req, res) => {
   res.send({ msg: 'Startup service' });

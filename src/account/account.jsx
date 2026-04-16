@@ -16,6 +16,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
     const [cars, setCars] = React.useState([]);
     const [carsMsg, setCarsMsg] = React.useState('');
     const [loading, setLoading] = React.useState(true);
+    const [vin, setVin] = React.useState('');
 
     async function refreshAll() {
         try {
@@ -139,6 +140,55 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         setCars(await listCars());
     }
 
+    async function decodeVin() {
+      setCarsMsg('');
+
+      const cleanVin = vin.trim().toUpperCase();
+
+      if (cleanVin.length !== 17) {
+        setCarsMsg('VIN must be 17 characters.');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/vehicle/decode-vin/${cleanVin}`, {
+          credentials: 'include',
+        });
+
+        const body = await res.json();
+
+        if (!res.ok) {
+          setCarsMsg(body.msg || 'Could not decode VIN.');
+          return;
+        }
+
+        // Auto-fill form fields
+        const form = document.getElementById('addCarForm');
+        if (form) {
+          form.year.value = body.year || '';
+          form.make.value = body.make || '';
+          form.model.value = body.model || '';
+          form.trim.value = body.trim || '';
+          form.vinLast4.value = cleanVin.slice(-4);
+        }
+
+        setCarsMsg('VIN decoded successfully.');
+        setVin('');
+      } catch (err) {
+        console.error(err);
+        setCarsMsg('VIN lookup failed. Please check the VIN and try again.');
+      }
+    }
+
+    function formatService(value) {
+      return {
+        tune: 'Performance Tune',
+        inspect: 'Full Inspection',
+        diagnostic: 'ECU Diagnostic',
+        consult: 'Consulting',
+      }[value] || value;
+    }
+
     if (loading) {
         return <main className="accountPage"><p>Loading account...</p></main>;
     }
@@ -201,7 +251,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                       <div className="itemLine">
                         <strong>{a.date}</strong> at <strong>{a.time}</strong>
                       </div>
-                      <div className="itemSub">{a.service}</div>
+                      <div className="itemSub">{formatService(a.service)}</div>
                     </div>
                     <Button
                       variant="outline-danger"
@@ -263,8 +313,21 @@ export function Account({ userName: userNameProp, onAuthChange }) {
             </div>
           )}
 
-          <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
-          <form id="addCarForm" onSubmit={submitCar}>
+            <h3 style={{ marginTop: '1rem' }}>Add a car</h3>
+
+            <div className="actions" style={{ marginBottom: 10 }}>
+              <input
+                value={vin}
+                onChange={(e) => setVin(e.target.value)}
+                placeholder="Enter full VIN (17 characters)"
+                maxLength={17}
+              />
+              <Button type="button" variant="secondary" onClick={decodeVin}>
+                Decode VIN
+              </Button>
+            </div>
+
+            <form id="addCarForm" onSubmit={submitCar}>
             <div className="actions">
               <input name="nickname" placeholder="Nickname (e.g., Daily)" required />
               <input name="year" placeholder="Year" inputMode="numeric" required />
@@ -286,43 +349,43 @@ export function Account({ userName: userNameProp, onAuthChange }) {
   );
 }
 
-export function CarPhotoUpload() {
-  const [file, setFile] = React.useState(null);
-  const [message, setMessage] = React.useState('');
+// export function CarPhotoUpload() {
+//   const [file, setFile] = React.useState(null);
+//   const [message, setMessage] = React.useState('');
 
-  async function handleUpload(e) {
-    e.preventDefault();
+//   async function handleUpload(e) {
+//     e.preventDefault();
 
-    if (!file) {
-      setMessage('Please choose a file.');
-      return;
-    }
+//     if (!file) {
+//       setMessage('Please choose a file.');
+//       return;
+//     }
 
-    const formData = new FormData();
-    formData.append('photo', file);
+//     const formData = new FormData();
+//     formData.append('photo', file);
 
-    const response = await fetch('/api/upload/car-photo', {
-      method: 'POST',
-      body: formData,
-      credentials: 'include',
-    });
+//     const response = await fetch('/api/upload/car-photo', {
+//       method: 'POST',
+//       body: formData,
+//       credentials: 'include',
+//     });
 
-    const body = await response.json();
-    if (response.ok) {
-      setMessage(`Uploaded: ${body.fileName}`);
-    } else {
-      setMessage(body.msg || 'Upload failed');
-    }
-  }
-    return (
-    <form onSubmit={handleUpload}>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-      <Button type="submit">Upload Car Photo</Button>
-      <p>{message}</p>
-    </form>
-  );
-}
+//     const body = await response.json();
+//     if (response.ok) {
+//       setMessage(`Uploaded: ${body.fileName}`);
+//     } else {
+//       setMessage(body.msg || 'Upload failed');
+//     }
+//   }
+//     return (
+//     <form onSubmit={handleUpload}>
+//       <input
+//         type="file"
+//         accept="image/*"
+//         onChange={(e) => setFile(e.target.files[0])}
+//       />
+//       <Button type="submit">Upload Car Photo</Button>
+//       <p>{message}</p>
+//     </form>
+//   );
+// }

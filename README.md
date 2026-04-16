@@ -130,7 +130,7 @@ For this deliverable I did the following. I checked the box `[x]` and added a de
 
 - [x] **Node.js/Express HTTP service** - Installed Express with NPM. Default port on 4000.js`.
 - [x] **Static middleware for frontend** - Configured Express to serve the React frontend using `express.static('public')` and SPA fallback routing.
-- [x] **Calls to third party endpoints** - I did not complete this part of the deliverable.
+- [x] **Calls to third party endpoints** - Added a backend endpoint that calls a third-party vehicle API to decode VIN information and return vehicle details to the frontend.
 - [x] **Backend service endpoints** - Created REST API endpoints for authentication, vehicles, and appointments.
 - [x] **Frontend calls service endpoints** - React frontend communicates with backend using fetch calls.
 - [x] **Supports registration, login, logout, and restricted endpoint** - Implemented full authentication system using cookies, bcrypt, and protected routes.
