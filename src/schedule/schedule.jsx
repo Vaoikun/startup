@@ -217,7 +217,7 @@ export function Schedule({ userName }) {
               .slice()
               .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
               .map((a) => (
-                <li key={a.id} className="item">
+                <li key={a._id} className="item">
                   <div className="itemMain">
                     <div className="itemLine">
                       <strong>{a.date}</strong> at <strong>{a.time}</strong>

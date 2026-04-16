@@ -3,8 +3,8 @@ import './account.css';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import { AuthState } from '../login/authState';
-import { listAppointments, removeAppointment, clearAppointments } from '../schedule/scheduleStorage';
-import { addCar, listCars, removeCar, getProfile, setProfile, clearProfile, clearCars } from './accountStorage';
+import { listAppointments, removeAppointment} from '../schedule/scheduleStorage';
+import { addCar, listCars, removeCar, getProfile, setProfile} from './accountStorage';
 
 function newId() {
     return (globalThis.crypto?.randomUUID?.() ??
@@ -98,7 +98,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
     }
 
     async function cancelAppt(apptId) {
-        const res = await removeAppointment(userName, apptId);
+        const res = await removeAppointment(apptId);
         if (!res.ok) return;
         setAppts(await listAppointments());
     }
