@@ -234,7 +234,8 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
   if (!validServices.includes(service)) {
     return res.status(400).send({msg:'Invalid service.'})
   }
-  const duplicate = await DB.getAppointmentsByUser(req.user.email).some((a) => a.date === date && a.time === time);
+  const existingAppointments = await DB.getAppointmentsByUser(req.user.email);
+  const duplicate = existingAppointments.some((a) => a.date === date && a.time === time);
 
   if (duplicate) {
     return res.status(409).send({
@@ -244,9 +245,8 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
 
   let linkedVehicleId = '';
   if (vehicleId) {
-    const vehicle = vehicles.find(
-      (v) => v.id === vehicleId && v.userId === req.user.id
-    );
+    const userVehicles = await DB.getVehiclesByUser(req.user.email);
+    const vehicle = userVehicles.find((v) => String(v._id) === vehicleId);
     if (!vehicle) {
       return res.status(400).send({ msg: 'Invalid vehicleId.'});
     }
@@ -254,9 +254,7 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
   }
 
   const appt = {
-    id: uuidv4(),
-    userName: req.user.userName,
-    userId: req.user.id,
+    userEmail: req.user.email,
     vehicleId: linkedVehicleId,
     date,
     time,
@@ -264,15 +262,14 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  DB.addAppointment(appt)
+  await DB.getAppointmentsByUser(req.user.email)
   res.send(appt);
 });
 
 apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
-  const before = appointments.length;
-  appointments = DB.deleteAppointment(req.params.id);
-  if (appointments.length === before) {
-    return res.status(404).send({msg:'Appointment not found.'});
+  const result = await DB.deleteAppointment(req.params.id);
+  if (result.deletedCount === 0) {
+    return res.status(404).send({ msg: 'Appointment not found.' });
   }
   res.status(204).end();
 })
@@ -300,24 +297,24 @@ app.use((err, req, res, next) => {
 });
 
 // Create a new user account
-async function createUser(email, password) {
-  const user = {
-    id: uuidv4(),
-    userName: email,
-    email,
-    displayName: '',
-    password: await bcrypt.hash(password, 10),
-    token: uuidv4(),
-    createdAt: new Date().toISOString(),
-  };
-  users.push(user);
-  return user;
-}
+// async function createUser(email, password) {
+//   const user = {
+//     id: uuidv4(),
+//     userName: email,
+//     email,
+//     displayName: '',
+//     password: await bcrypt.hash(password, 10),
+//     token: uuidv4(),
+//     createdAt: new Date().toISOString(),
+//   };
+//   users.push(user);
+//   return user;
+// }
 
-// Find a user by a specific field and value
-async function findUser(field, value) {
-  return users.find((u) => u[field] === value);
-}
+// // Find a user by a specific field and value
+// async function findUser(field, value) {
+//   return users.find((u) => u[field] === value);
+// }
 
 // Set the authentication cookie for a user
 function setAuthCookie(res, token) {
