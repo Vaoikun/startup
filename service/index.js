@@ -7,10 +7,15 @@ const app = express();
 const authCookieName = 'token';
 // const multer = require('multer');
 const DB = require('./database');
+const http = require('http');
+const { peerProxy } = require('./peerProxy');
+
+// Create the HTTP server and attach the peer proxy to it
+const httpServer = http.createServer(app);
+peerProxy(httpServer);
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
-
 
 app.use(express.json());
 app.use(cookieParser());
@@ -294,6 +299,11 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+socket.send(JSON.stringify({
+  type: 'appointment:created',
+  data: appt
+}));
+
 // Create a new user account
 // async function createUser(email, password) {
 //   const user = {
@@ -324,7 +334,7 @@ function setAuthCookie(res, token) {
 }
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Service running on port ${port}`);
+httpServer.listen(port, () => {
+  console.log(`Service + WebSocket running on port ${port}`);
 });
 
