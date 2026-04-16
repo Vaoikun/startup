@@ -197,8 +197,8 @@ apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
   res.send(vehicle);
 });
 
-apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) =>{
-  const result = await DB.deleteVehicle(req.params.id);
+apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) => {
+  const result = await DB.deleteVehicle(req.params.id, req.user.email);
   if (result.deletedCount === 0) {
     return res.status(404).send({ msg: 'Vehicle not found.' });
   }
@@ -265,12 +265,12 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
 });
 
 apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
-  const result = await DB.deleteAppointment(req.params.id);
+  const result = await DB.deleteAppointment(req.params.id, req.user.email);
   if (result.deletedCount === 0) {
     return res.status(404).send({ msg: 'Appointment not found.' });
   }
   res.status(204).end();
-})
+});
 
 // Return the application's default page if the path is unknown
 app.get('/service', (_req, res) => {
