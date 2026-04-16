@@ -270,18 +270,19 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
+    const savedAppt = await DB.addAppointment(appt);
+
     socketServer.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(
           JSON.stringify({
             type: 'appointment:created',
-            data: appt,
+            data: savedAppt,
           })
         );
       }
     });
 
-    const savedAppt = await DB.addAppointment(appt);
     res.send(savedAppt);
   } catch (err) {
     console.error(err);
