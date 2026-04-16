@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const config = require('./dbConfig.json');
 
 const url = `mongodb+srv://${config.userName}:${config.password}@${config.hostname}`;
@@ -7,7 +7,7 @@ const db = client.db('startup');
 const userCollection = db.collection('users');
 const vehicleCollection = db.collection('vehicles');
 const appointmentCollection = db.collection('appointments');
-const { MongoClient, ObjectId } = require('mongodb');
+
 
 // This will asynchronously test the connection and exit the process if it fails
 (async function testConnection() {
