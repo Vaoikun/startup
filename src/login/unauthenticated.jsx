@@ -1,58 +1,98 @@
 import React from 'react';
-
 import Button from 'react-bootstrap/Button';
 import { MessageDialog } from './messageDialog';
 
-export function Unauthenticated(props) {
-    const [userName, setUserName] = React.useState(props.userName);
-    const [password, setPassword] = React.useState('');
-    const [displayError, setDisplayError] = React.useState(null);
+export function Unauthenticated({ userName: initialUserName, onLogin }) {
+  const [userName, setUserName] = React.useState(initialUserName || '');
+  const [password, setPassword] = React.useState('');
+  const [displayError, setDisplayError] = React.useState(null);
 
-    async function loginUser() {
-        loginOrCreate(`/api/auth/login`);
-    }
+  React.useEffect(() => {
+    setUserName(initialUserName || '');
+  }, [initialUserName]);
 
-    async function createUser() {
-        loginOrCreate(`/api/auth/create`);
-    }
+  async function loginUser() {
+    await loginOrCreate('/api/auth/login');
+  }
 
-    async function loginOrCreate(endpoint) {
-        const response = await fetch(endpoint, {
-        method: 'post',
-        body: JSON.stringify({ email: userName, password: password }),
+  async function createUser() {
+    await loginOrCreate('/api/auth/create');
+  }
+
+  async function loginOrCreate(endpoint) {
+    try {
+      const trimmedUserName = userName.trim();
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        credentials: 'include',
+        body: JSON.stringify({
+          email: trimmedUserName,
+          password,
+        }),
         headers: {
-            'Content-type': 'application/json; charset=UTF-8',
+          'Content-Type': 'application/json; charset=UTF-8',
         },
-        });
-        if (response?.status === 200) {
-        localStorage.setItem('userName', userName);
-        props.onLogin(userName);
-        } else {
-        const body = await response.json();
-        setDisplayError(`⚠ Error: ${body.msg}`);
-        }
+      });
+
+      const body = await response.json().catch(() => ({}));
+
+      if (response.ok) {
+        localStorage.setItem('userName', trimmedUserName);
+        onLogin(trimmedUserName);
+      } else {
+        setDisplayError(`⚠ Error: ${body.msg || 'Request failed.'}`);
+      }
+    } catch (err) {
+      console.error(err);
+      setDisplayError('⚠ Error: Could not reach the server.');
     }
+  }
 
-    return (
-        <>
-        <form onSubmit={(e) => {e.preventDefault(); loginUser();}}>
-            <div className="input-group mb-3">
-                <span >@</span>
-                <input className='form-control'  type="text" value={userName} onChange={(e) => setUserName(e.target.value)} placeholder="your@email.com" />
-            </div>
-            <div className="input-group mb-3">
-                <span >🔒</span>
-                <input className='form-control' type="password" onChange={(e) => setPassword(e.target.value)} placeholder="password" />
-            </div>
-            <Button type="submit" variant='primary' disabled={!userName || !password}>
-            Login
-            </Button>
-            <Button type='button' variant='secondary' onClick={createUser} disabled={!userName || !password}>
-            Create
-            </Button>
-        </form>
+  return (
+    <>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          loginUser();
+        }}
+      >
+        <div className="input-group mb-3">
+          <span>@</span>
+          <input
+            className="form-control"
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="your@email.com"
+          />
+        </div>
 
-        <MessageDialog message={displayError} onHide={() => setDisplayError(null)} />
-        </>
-    );
+        <div className="input-group mb-3">
+          <span>🔒</span>
+          <input
+            className="form-control"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="password"
+          />
+        </div>
+
+        <Button type="submit" variant="primary" disabled={!userName.trim() || !password}>
+          Login
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={createUser}
+          disabled={!userName.trim() || !password}
+        >
+          Create
+        </Button>
+      </form>
+
+      <MessageDialog message={displayError} onHide={() => setDisplayError(null)} />
+    </>
+  );
 }
