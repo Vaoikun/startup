@@ -262,7 +262,7 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  await DB.getAppointmentsByUser(req.user.email)
+  await DB.addAppointment(appt);
   res.send(appt);
 });
 

@@ -7,10 +7,12 @@ const db = client.db('startup');
 const userCollection = db.collection('users');
 const vehicleCollection = db.collection('vehicles');
 const appointmentCollection = db.collection('appointments');
+const { MongoClient, ObjectId } = require('mongodb');
 
 // This will asynchronously test the connection and exit the process if it fails
 (async function testConnection() {
   try {
+    await client.connect();
     await db.command({ ping: 1 });
     console.log(`Connect to database`);
   } catch (ex) {
