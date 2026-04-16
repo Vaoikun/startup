@@ -6,6 +6,7 @@ import {
   removeAppointment,
 } from './scheduleStorage';
 
+
 const SERVICES = [
   { value: '', label: 'Choose one' },
   { value: 'tune', label: 'Performance Tune' },
@@ -49,9 +50,49 @@ export function Schedule({ userName }) {
         }
     }
 
-    // Continuous update
+    // Initial load whenever the logged-in user changes
     React.useEffect(() => {
-        refreshAppointments();
+      refreshAppointments();
+    }, [userName]);
+
+    // Real-time updates from the server
+    React.useEffect(() => {
+      if (!userName) return;
+
+      const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+      const socket = new WebSocket(`${protocol}://${window.location.host}/ws`);
+
+      socket.onopen = () => {
+        console.log('WebSocket connected');
+      };
+
+      socket.onmessage = async (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          console.log('WS message:', msg);
+
+          if (
+            msg.type === 'appointment:created' ||
+            msg.type === 'appointment:deleted'
+          ) {
+            await refreshAppointments();
+          }
+        } catch (err) {
+          console.error('Failed to parse WS message:', err);
+        }
+      };
+
+      socket.onerror = (err) => {
+        console.error('WebSocket error:', err);
+      };
+
+      socket.onclose = () => {
+        console.log('WebSocket closed');
+      };
+
+      return () => {
+        socket.close();
+      };
     }, [userName]);
 
     const onSelectSlot = (slotValue) => {

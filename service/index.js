@@ -295,6 +295,18 @@ apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
   if (result.deletedCount === 0) {
     return res.status(404).send({ msg: 'Appointment not found.' });
   }
+
+  socketServer.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          type: 'appointment:deleted',
+          data: { id: req.params.id },
+        })
+      );
+    }
+  });
+
   res.status(204).end();
 });
 
