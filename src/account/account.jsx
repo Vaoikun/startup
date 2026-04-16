@@ -114,8 +114,8 @@ export function Account({ userName: userNameProp, onAuthChange }) {
             createdAt: new Date().toISOString(),
         };
 
-        if (!car.nickname || !car.year || !car.make || !car.model) {
-        setCarsMsg('Please fill out Nickname, Year, Make, and Model.');
+        if (!car.year || !car.make || !car.model) {
+        setCarsMsg('Please fill out Year, Make, and Model.');
         return;
         }
         if (car.vinLast4 && car.vinLast4.length !== 4) {
