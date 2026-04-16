@@ -85,7 +85,10 @@ export function Account({ userName: userNameProp, onAuthChange }) {
 
     async function delAccount(){
         try {
-            await clearProfile();
+            await fetch('/api/account', {
+              method: 'DELETE',
+              credentials: 'include',
+            });
         } catch (err) {
             console.error(err);
         }
@@ -198,7 +201,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                 .slice()
                 .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
                 .map((a) => (
-                  <li key={a.id} className="item">
+                  <li key={a._id} className="item">
                     <div>
                       <div className="itemLine">
                         <strong>{a.date}</strong> at <strong>{a.time}</strong>
@@ -208,7 +211,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                     <Button
                       variant="outline-danger"
                       size="sm"
-                      onClick={() => cancelAppt(a.id)}
+                      onClick={() => cancelAppt(a._id)}
                     >
                       Cancel
                     </Button>
@@ -242,7 +245,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                 </thead>
                 <tbody>
                   {cars.map((c) => (
-                    <tr key={c.id}>
+                    <tr key={c._id}>
                       <td>{c.nickname}</td>
                       <td>{c.year}</td>
                       <td>{c.make}</td>
@@ -253,7 +256,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
                         <Button
                           variant="outline-danger"
                           size="sm"
-                          onClick={() => deleteCar(c.id)}
+                          onClick={() => deleteCar(c._id)}
                         >
                           Remove
                         </Button>
