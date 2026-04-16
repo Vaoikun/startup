@@ -13,7 +13,7 @@ export function Authenticated(props) {
         method: 'delete',
         })
         .catch(() => {
-            // Logout failed. Assuming offline
+            // Logout failed.
         })
         .finally(() => {
             localStorage.removeItem('userName');

@@ -6,14 +6,11 @@ const path = require('path');
 const app = express();
 const authCookieName = 'token';
 const multer = require('multer');
+const DB = require('./database');
 
 // The service port. In production the front-end code is statically hosted by the service on the same port.
 const port = process.argv.length > 2 ? process.argv[2] : 4000;
 
-// In-memory user database. In production this would be a real database.
-let users = [];
-let vehicles = [];
-let appointments = [];
 
 app.use(express.json());
 app.use(cookieParser());
@@ -55,26 +52,35 @@ app.use('/uploads', express.static('uploads'));
 
 // CreateAuth a new user account
 apiRouter.post('/auth/create', async (req, res) => {
-  try {
-    const email = (req.body.email || '').trim();
-    const password = req.body.password || '';
-    if (!email || !password) {
-      return res.status(400).send({ msg: 'Email and password required' });
-    }
-    if (await findUser('email', email)) {
-      return res.status(409).send({ msg: 'Existing user' });
-    }
-    const user = await createUser(email, password);
-    setAuthCookie(res, user.token);
-    res.send({
-      userName: user.userName,
-      email: user.email,
-      displayName: user.displayName,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+  const email = (req.body.email || '').trim();
+  const password = req.body.password || '';
+
+  if (!email || !password) {
+    return res.status(400).send({ msg: 'Email and password required' });
   }
+
+  const existingUser = await DB.getUser(email);
+  if (existingUser) {
+    return res.status(409).send({ msg: 'Existing user' });
+  }
+
+  const user = {
+    email,
+    userName: email,
+    displayName: '',
+    password: await bcrypt.hash(password, 10),
+    token: uuidv4(),
+    createdAt: new Date().toISOString(),
+  };
+
+  await DB.addUser(user);
+  setAuthCookie(res, user.token);
+
+  res.send({
+    userName: user.userName,
+    email: user.email,
+    displayName: user.displayName,
+  });
 });
 
 // GetAuth login an existing user
@@ -85,11 +91,11 @@ apiRouter.post('/auth/login', async (req, res) => {
     if (!email || !password) {
       return res.status(400).send({ msg: 'Email and password required' });
     }
-    const user = await findUser('email', email);
+    const user = await DB.getUser(email);
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).send({ msg: 'Invalid email or password' });
     }
-    user.token = uuid.v4();
+    user.token = uuidv4();
     setAuthCookie(res, user.token);
     res.send({
       userName: user.userName,
@@ -105,7 +111,7 @@ apiRouter.post('/auth/login', async (req, res) => {
 // Middleware to verify that the user is authorized to call an endpoint
 const verifyAuth = async (req, res, next) => {
   const token = req.cookies[authCookieName];
-  const user = await findUser('token', token);
+  const user = await DB.getUserByToken(token);
   if (!user) {
     return res.status(401).send({ msg: 'Unauthorized' });
   }
@@ -116,6 +122,7 @@ const verifyAuth = async (req, res, next) => {
 // Delete the current user's account infromation
 apiRouter.delete('/auth/logout', verifyAuth, async(req, res) => {
   delete req.user.token;
+  await DB.removeUserToken(req.user.email);
   res.clearCookie(authCookieName);
   res.status(204).end();
 })
@@ -153,7 +160,7 @@ apiRouter.delete('/account', verifyAuth, async (req, res) => {
 
 // Get the current user's vehicles
 apiRouter.get('/vehicles', verifyAuth, async (req, res) => {
-  const userVehicles = vehicles.filter((v) => v.userId === req.user.id);
+  const userVehicles = await DB.getVehiclesByUserId(req.user.id);
   res.send(userVehicles);
 });
 
@@ -190,15 +197,13 @@ apiRouter.post('/vehicles', verifyAuth, async (req, res) => {
     vinLast4,
     createdAt: new Date().toISOString(),
   };
-  vehicles.push(vehicle);
+  await DB.addVehicle(vehicle);
   res.send(vehicle);
 });
 
 apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) =>{
   const before = vehicles.length;
-  vehicles = vehicles.filter(
-    (v) => !(v.id === req.params.id && v.userId === req.user.id)
-  );
+  await DB.deleteVehicle(req.params.id);
   if (vehicles.length === before) {
     return res.status(404).send({ msg: 'Vehicle not found.'});
   }
@@ -207,9 +212,7 @@ apiRouter.delete('/vehicles/:id', verifyAuth, async (req, res) =>{
 
 // Get the current user's appointments
 apiRouter.get('/appointments', verifyAuth, async (req, res) => {
-  const userAppointments = appointments.filter(
-    (a) => a.userName === req.user.userName
-  );
+  const userAppointments = await DB.getAppointmentsByUser(req.user.email);
   res.send(userAppointments);
 });
 
@@ -234,10 +237,7 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
   if (!validServices.includes(service)) {
     return res.status(400).send({msg:'Invalid service.'})
   }
-  const duplicate = appointments.find(
-    (a) => 
-      a.userName === req.user.userName && a.date === date && a.time === time
-  );
+  const duplicate = await DB.getAppointmentsByUser(req.user.email).some((a) => a.date === date && a.time === time);
 
   if (duplicate) {
     return res.status(409).send({
@@ -267,15 +267,13 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
     createdAt: new Date().toISOString(),
   };
 
-  appointments.push(appt)
+  DB.addAppointment(appt)
   res.send(appt);
 });
 
 apiRouter.delete('/appointments/:id', verifyAuth, async (req, res) => {
   const before = appointments.length;
-  appointments = appointments.filter(
-    (a) => !(a.id === req.params.id && a.userName == req.user.userName)
-  );
+  appointments = DB.deleteAppointment(req.params.id);
   if (appointments.length === before) {
     return res.status(404).send({msg:'Appointment not found.'});
   }

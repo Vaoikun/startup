@@ -127,7 +127,7 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         return;
         }
 
-        const res = await addCar(userName, car);
+        const res = await addCar(car);
         if (!res.ok) {
         setCarsMsg(res.error || 'Could not add car.');
         return;
@@ -288,5 +288,46 @@ export function Account({ userName: userNameProp, onAuthChange }) {
         </div>
       </section>
     </main>
+  );
+}
+
+export function CarPhotoUpload() {
+  const [file, setFile] = React.useState(null);
+  const [message, setMessage] = React.useState('');
+
+  async function handleUpload(e) {
+    e.preventDefault();
+
+    if (!file) {
+      setMessage('Please choose a file.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const response = await fetch('/api/upload/car-photo', {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
+    });
+
+    const body = await response.json();
+    if (response.ok) {
+      setMessage(`Uploaded: ${body.fileName}`);
+    } else {
+      setMessage(body.msg || 'Upload failed');
+    }
+  }
+    return (
+    <form onSubmit={handleUpload}>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={(e) => setFile(e.target.files[0])}
+      />
+      <Button type="submit">Upload Car Photo</Button>
+      <p>{message}</p>
+    </form>
   );
 }

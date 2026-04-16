@@ -66,7 +66,7 @@ export async function clearAppointments() {
   const appts = await listAppointments();
   await Promise.all(
     appts.map((a) =>
-      fetch(`/api/appointments/${a.id}`, {
+      fetch(`/api/appointments/${a._id}`, {
         method: 'DELETE',
         credentials: 'include',
       })

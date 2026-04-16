@@ -77,6 +77,19 @@ async function deleteAppointment(appointmentId) {
   return appointmentCollection.deleteOne({ _id: new ObjectId(appointmentId) });
 }
 
+// Account delte cleanup functions
+async function deleteUser(email) {
+  return userCollection.deleteOne({ email });
+}
+
+async function deleteVehiclesByUser(email) {
+  return vehicleCollection.deleteMany({ ownerEmail: email });
+}
+
+async function deleteAppointmentsByUser(email) {
+  return appointmentCollection.deleteMany({ userEmail: email });
+}
+
 module.exports = {
   getUser,
   getUserByToken,
@@ -89,5 +102,8 @@ module.exports = {
   addAppointment,
   getAppointmentsByUser,
   getAllAppointments,
-  deleteAppointment
+  deleteAppointment,
+  deleteUser,
+  deleteVehiclesByUser,
+  deleteAppointmentsByUser,
 };
