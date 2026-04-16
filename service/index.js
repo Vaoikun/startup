@@ -270,8 +270,6 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
-    await DB.addAppointment(appt);
-
     socketServer.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(
@@ -283,7 +281,8 @@ apiRouter.post('/appointments', verifyAuth, async (req, res) => {
       }
     });
 
-    res.send(appt);
+    const savedAppt = await DB.addAppointment(appt);
+    res.send(savedAppt);
   } catch (err) {
     console.error(err);
     res.status(500).send({ msg: 'Failed to create appointment.' });

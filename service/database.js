@@ -43,7 +43,8 @@ async function removeUserToken(email) {
 
 // Vehicle functions
 async function addVehicle(vehicle) {
-  return vehicleCollection.insertOne(vehicle);
+  const result = await vehicleCollection.insertOne(vehicle);
+  return { ...vehicle, _id: result.insertedId };
 }
 
 function getVehiclesByUser(email) {
@@ -51,6 +52,9 @@ function getVehiclesByUser(email) {
 }
 
 async function deleteVehicle(vehicleId, email) {
+  if (!ObjectId.isValid(vehicleId)) {
+    return { deletedCount: 0 };
+  }
   return vehicleCollection.deleteOne({
     _id: new ObjectId(vehicleId),
     ownerEmail: email,
@@ -59,24 +63,28 @@ async function deleteVehicle(vehicleId, email) {
 
 // Appointment functions
 async function addAppointment(appointment) {
-  return appointmentCollection.insertOne(appointment);
+  const result = await appointmentCollection.insertOne(appointment);
+  return { ...appointment, _id: result.insertedId };
 }
 
 function getAppointmentsByUser(email) {
   return appointmentCollection
     .find({ userEmail: email })
-    .sort({ date: 1 })
+    .sort({ date: 1, time: 1 })
     .toArray();
 }
 
 function getAllAppointments() {
   return appointmentCollection
     .find({})
-    .sort({ date: 1 })
+    .sort({ date: 1, time: 1 })
     .toArray();
 }
 
 async function deleteAppointment(appointmentId, email) {
+  if (!ObjectId.isValid(appointmentId)) {
+    return { deletedCount: 0 };
+  }
   return appointmentCollection.deleteOne({
     _id: new ObjectId(appointmentId),
     userEmail: email,
